@@ -262,6 +262,49 @@ qa('[data-nav-link]').forEach((link) => {
 });
 
 /* ------------------------------------------------------------------ */
+/* Spiral scroll indicator                                             */
+/* ------------------------------------------------------------------ */
+const spiralTop = q<HTMLElement>('[data-spiral-top]');
+const spiralFill = q<SVGPathElement>('[data-spiral-fill]');
+const spiralPct = q<HTMLElement>('[data-spiral-pct]');
+
+function updateSpiral() {
+  if (!spiralTop) return;
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const p = max > 0 ? Math.min(window.scrollY / max, 1) : 0;
+  spiralTop.classList.toggle('show', window.scrollY > window.innerHeight * 0.6);
+  if (spiralFill) spiralFill.style.strokeDashoffset = String(1 - p);
+  if (spiralPct) spiralPct.textContent = `${Math.round(p * 100)}`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Section titles "speak" word by word as they scroll into place       */
+/* ------------------------------------------------------------------ */
+const scrubTitles = qa<HTMLElement>('.section-title, .ct-copy h2');
+scrubTitles.forEach((el) => {
+  if (prefersReduced) return;
+  el.removeAttribute('data-fade');
+  el.classList.remove('reveal-init');
+  const words = (el.textContent || '').trim().split(/\s+/);
+  el.setAttribute('aria-label', el.textContent?.trim() || '');
+  const esc = (w: string) => w.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  el.innerHTML = words.map((w) => `<span class="scrub-word" aria-hidden="true">${esc(w)}</span>`).join(" ");
+});
+
+function updateScrub() {
+  const vh = window.innerHeight;
+  scrubTitles.forEach((el) => {
+    const r = el.getBoundingClientRect();
+    if (r.bottom < -50 || r.top > vh + 50) return;
+    // 0 when the title enters at 90% of the viewport, 1 when it reaches 45%
+    const p = Math.min(1, Math.max(0, (vh * 0.9 - r.top) / (vh * 0.45)));
+    const spans = el.children;
+    const lit = Math.round(p * spans.length);
+    for (let i = 0; i < spans.length; i++) spans[i].classList.toggle('lit', i < lit);
+  });
+}
+
+/* ------------------------------------------------------------------ */
 /* Main rAF loop — smooth pointer + scroll-driven scenes               */
 /* ------------------------------------------------------------------ */
 function frame() {
@@ -275,6 +318,8 @@ function frame() {
   (window as any).__nautilaManifesto?.();
   updateHorizontal();
   updateParallax();
+  updateSpiral();
+  updateScrub();
 
   requestAnimationFrame(frame);
 }
@@ -284,6 +329,7 @@ if (!prefersReduced) {
 } else {
   window.addEventListener('scroll', () => {
     onScrollChrome();
+    updateSpiral();
     (window as any).__nautilaManifesto?.();
     if (hPin && hTrack) {
       const r = hPin.getBoundingClientRect();

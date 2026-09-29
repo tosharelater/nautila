@@ -99,7 +99,7 @@ const days = Array.from({ length: 31 }, (_, i) => ({ n: i + 1, booked: !free.has
             <div class="kpi">
               <span class="kpi-l">{k.l}</span>
               <span class="kpi-v tnum">
-                {k.v} <small>{k.u}</small>
+                <span data-counter data-target={Number(k.v.replace(/[^0-9]/g, ''))}>{k.v}</span> <small>{k.u}</small>
               </span>
               <span class:list={['kpi-d tnum', { pos: k.pos === true, neg: k.pos === false }]}>{k.d}</span>
             </div>

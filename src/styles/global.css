@@ -670,3 +670,77 @@ html {
   letter-spacing: 0.08em;
   color: rgba(20, 51, 59, 0.45);
 }
+
+/* --------------------------------------------------------------------------
+   Spiral scroll indicator — draws the logo as you read, doubles as "to top"
+   -------------------------------------------------------------------------- */
+.spiral-top {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 55;
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(20, 51, 59, 0.82);
+  border: 1px solid rgba(242, 239, 230, 0.12);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(20, 51, 59, 0.3);
+  opacity: 0;
+  transform: translateY(12px) scale(0.9);
+  transition: opacity 0.4s, transform 0.4s var(--ease-out);
+  pointer-events: none;
+}
+
+.spiral-top.show {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.spiral-top svg {
+  width: 34px;
+  overflow: visible;
+}
+
+.spiral-top path {
+  stroke-width: 9;
+  stroke-linecap: round;
+}
+
+.st-track {
+  stroke: rgba(242, 239, 230, 0.12);
+}
+
+.st-fill {
+  stroke: #63a6a0;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.st-pct {
+  position: absolute;
+  bottom: -18px;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--ink-300);
+}
+
+.spiral-top:hover .st-fill {
+  stroke: #f2efe6;
+}
+
+/* Words that light up as the section scrolls into place */
+.scrub-word {
+  display: inline-block;
+  opacity: 0.14;
+  transform: translateY(0.12em);
+  transition: opacity 0.25s linear, transform 0.35s var(--ease-out);
+}
+
+.scrub-word.lit {
+  opacity: 1;
+  transform: none;
+}

@@ -7,268 +7,535 @@ interface Props {
 const { lang } = Astro.props;
 
 const SPIRAL =
-  'M100 0 A100 100 0 0 1 0 100 A61.8 61.8 0 0 1 -61.8 38.2 A38.2 38.2 0 0 1 -23.61 0 A23.61 23.61 0 0 1 0 23.61 A14.59 14.59 0 0 1 -14.59 38.2 A9 9 0 0 1 -5.6 29.2';
-const tess = [
-  { x: 6, y: 18, s: 54, r: 0, d: 0 },
-  { x: 44, y: 10, s: 38, r: 90, d: 1.2 },
-  { x: 30, y: 74, s: 46, r: 180, d: 2.1 },
-  { x: 88, y: 14, s: 42, r: 270, d: 0.6 },
-  { x: 92, y: 70, s: 60, r: 90, d: 1.8 },
-  { x: 62, y: 84, s: 34, r: 0, d: 2.6 },
-];
+  'M100 0 A100 100 0 0 1 0 100 A61.8 61.8 0 0 1 -61.8 38.2 A38.2 38.2 0 0 1 -23.61 0 A23.61 23.61 0 0 1 0 23.61 A14.59 14.59 0 0 1 -14.59 38.2';
+
+const copy = {
+  fr: {
+    a: 'Vos biens,',
+    b: 'parfaitement protégés.',
+    tag: 'Conciergerie premium · Casablanca → Rabat',
+    hint: 'Faites défiler pour entrer',
+    inside: 'À l’intérieur, le même standard partout.',
+    report: 'Rapport mensuel · octobre',
+    occ: 'occupation',
+  },
+  en: {
+    a: 'Your home,',
+    b: 'perfectly kept.',
+    tag: 'Premium concierge · Casablanca → Rabat',
+    hint: 'Scroll to step inside',
+    inside: 'Inside, the same standard everywhere.',
+    report: 'Monthly report · October',
+    occ: 'occupancy',
+  },
+}[lang];
 ---
 
-<section class="hero" id="top" data-hero>
-  <div class="hero-glow" aria-hidden="true"></div>
-  <canvas class="hero-gl" data-hero-gl aria-hidden="true"></canvas>
+<section class="hx" id="top" data-hx>
+  <div class="hx-stage">
+    <!-- ============ INTERIOR (seen through the window) ============ -->
+    <div class="room" data-room aria-hidden="true">
+      <div class="wall"></div>
+      <div class="shaft"></div>
+      <div class="floor"></div>
+      <div class="baseboard"></div>
 
-  <div class="hero-art" aria-hidden="true" data-parallax="0.1" data-parallax-x="-30" data-parallax-y="20">
-    <svg class="big-spiral" viewBox="-70 -8 176 116" fill="none">
-      <defs>
-        <linearGradient id="spiral-grad" x1="100" y1="0" x2="-60" y2="100" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stop-color="#63A6A0"></stop>
-          <stop offset="1" stop-color="#2E7D8C"></stop>
-        </linearGradient>
-      </defs>
-      <g class="squares" stroke="#63A6A0" stroke-width="0.35" opacity="0.35">
-        <rect x="0" y="0" width="100" height="100" pathLength="1"></rect>
-        <rect x="-61.8" y="38.2" width="61.8" height="61.8" pathLength="1"></rect>
-        <rect x="-61.8" y="0" width="38.2" height="38.2" pathLength="1"></rect>
-        <rect x="-23.61" y="0" width="23.61" height="23.61" pathLength="1"></rect>
-        <rect x="-14.59" y="23.61" width="14.59" height="14.59" pathLength="1"></rect>
-      </g>
-      <path class="spiral-glow" pathLength="1" d={SPIRAL} stroke="#63A6A0" stroke-width="7" stroke-linecap="round"></path>
-      <path class="spiral-line" pathLength="1" d={SPIRAL} stroke="url(#spiral-grad)" stroke-width="3.2" stroke-linecap="round"></path>
-      <circle class="spiral-dot" r="2.2" fill="#F2EFE6">
-        <animateMotion dur="9s" repeatCount="indefinite" calcMode="linear" path={SPIRAL}></animateMotion>
-      </circle>
-    </svg>
-  </div>
+      <svg class="lamp" viewBox="0 0 200 520" fill="none">
+        <path d="M60 510 C 60 300, 70 120, 150 60" stroke="#B08D57" stroke-width="5" stroke-linecap="round"></path>
+        <path d="M112 64 L188 64 L172 118 L128 118 Z" fill="#F2EFE6" stroke="#B08D57" stroke-width="3"></path>
+        <ellipse cx="150" cy="120" rx="30" ry="8" fill="#FFE9C2" opacity="0.8"></ellipse>
+        <rect x="30" y="505" width="60" height="10" rx="3" fill="#B08D57"></rect>
+      </svg>
 
-  <div class="tess" aria-hidden="true">
-    {
-      tess.map((o) => (
-        <svg
-          class="tess-item"
-          style={`left:${o.x}%;top:${o.y}%;width:${o.s}px;height:${o.s}px;--r:${o.r}deg;animation-delay:${o.d}s`}
-          viewBox="-66 -5 172 110"
-          fill="none"
-        >
-          <path
-            d="M100 0 A100 100 0 0 1 0 100 A61.8 61.8 0 0 1 -61.8 38.2 A38.2 38.2 0 0 1 -23.61 0 A23.61 23.61 0 0 1 0 23.61"
-            stroke="#63A6A0"
-            stroke-width="7"
-            stroke-linecap="round"
-          />
+      <svg class="plant" viewBox="0 0 240 520" fill="none">
+        <path d="M120 400 C 118 300, 110 200, 60 110" stroke="#4E6B5E" stroke-width="3"></path>
+        <path d="M122 400 C 130 290, 150 190, 200 90" stroke="#4E6B5E" stroke-width="3"></path>
+        <path d="M121 400 C 121 280, 124 170, 128 40" stroke="#4E6B5E" stroke-width="3"></path>
+        {
+          [
+            [60, 110, -30], [82, 160, -40], [96, 220, -50], [200, 90, 30], [178, 150, 40], [158, 215, 45],
+            [128, 40, 0], [126, 100, -10], [125, 160, 12], [124, 230, -8],
+          ].map(([x, y, r]) => (
+            <ellipse cx={x} cy={y} rx="9" ry="22" fill="#5E7D6E" transform={`rotate(${r} ${x} ${y})`} opacity="0.9" />
+          ))
+        }
+        <path d="M80 400 H164 L152 515 H92 Z" fill="#E6DFCE" stroke="#CFC5AE" stroke-width="2"></path>
+      </svg>
+
+      <svg class="console" viewBox="0 0 600 220" fill="none">
+        <rect x="20" y="60" width="560" height="14" rx="2" fill="#C9A97A"></rect>
+        <path d="M60 74 L50 220 M540 74 L550 220" stroke="#B08D57" stroke-width="5"></path>
+        <rect x="70" y="34" width="110" height="10" fill="#14333B"></rect>
+        <rect x="80" y="44" width="100" height="16" fill="#2E7D8C"></rect>
+        <path d="M440 60 C 425 40, 430 12, 455 6 C 480 12, 485 40, 470 60 Z" fill="#F2EFE6" stroke="#CFC5AE" stroke-width="2"></path>
+        <path d="M455 8 C 450 -30, 430 -50, 405 -70 M457 8 C 470 -30, 490 -40, 510 -62" stroke="#8C7550" stroke-width="2"></path>
+      </svg>
+
+      <!-- framed artwork: laid out at viewport size, scaled down on the wall -->
+      <div class="art" data-art>
+        <canvas class="art-gl" data-hero-gl></canvas>
+        <svg class="art-fallback" viewBox="-70 -8 176 116" fill="none">
+          <path d={SPIRAL} stroke="#63A6A0" stroke-width="3" stroke-linecap="round"></path>
         </svg>
-      ))
-    }
-  </div>
+        <div class="art-mark" data-art-mark>
+          <span>NAUTILA</span>
+          <small>{lang === 'en' ? 'Your home, perfectly kept' : 'Vos biens, parfaitement protégés'}</small>
+        </div>
 
-  <div class="container hero-inner">
-    <p class="kicker" data-fade data-parallax="0.05">{t(lang, 'hero.kicker')}</p>
-    <h1 class="hero-title" data-parallax="0.12" data-parallax-x="28" data-parallax-y="18">
-      <span class="line">{t(lang, 'hero.title.a')}</span>
-      <span class="line accent">{t(lang, 'hero.title.b')}</span>
-    </h1>
-    <p class="hero-text" data-fade data-parallax="0.06">{t(lang, 'hero.text')}</p>
-    <div class="hero-actions" data-fade>
-      <a class="btn btn-primary" href="#contact" data-nav-link>
-        {t(lang, 'hero.cta')} <span class="arrow">→</span>
-      </a>
-      <a class="btn btn-outline" href="#services" data-nav-link>{t(lang, 'hero.cta.secondary')}</a>
+        <div class="art-copy container" data-art-copy>
+          <p class="kicker">{t(lang, 'hero.kicker')}</p>
+          <h1 class="hero-title">
+            <span class="line">{t(lang, 'hero.title.a')}</span>
+            <span class="line accent">{t(lang, 'hero.title.b')}</span>
+          </h1>
+          <p class="hero-text">{t(lang, 'hero.text')}</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#contact" data-nav-link>{t(lang, 'hero.cta')} <span class="arrow">→</span></a>
+            <a class="btn btn-outline" href="#services" data-nav-link>{t(lang, 'hero.cta.secondary')}</a>
+          </div>
+        </div>
+
+        <aside class="float-card" data-art-card aria-hidden="true">
+          <span class="fc-label">{copy.report}</span>
+          <span class="fc-value">28 450 <small>MAD</small></span>
+          <span class="fc-row"><b>87 %</b> {copy.occ} <em>+12,4 %</em></span>
+        </aside>
+      </div>
     </div>
-  </div>
 
-  <aside class="float-card" aria-hidden="true">
-    <span class="fc-label">{lang === 'en' ? 'Monthly report · October' : 'Rapport mensuel · octobre'}</span>
-    <span class="fc-value">28 450 <small>MAD</small></span>
-    <span class="fc-row"><b>87 %</b> {lang === 'en' ? 'occupancy' : 'occupation'} <em>+12,4 %</em></span>
-  </aside>
+    <!-- ============ EXTERIOR — facade with the window cut out ============ -->
+    <svg class="facade" data-facade viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <linearGradient id="hx-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#14333B"></stop>
+          <stop offset="0.557" stop-color="#2E7D8C"></stop>
+          <stop offset="0.729" stop-color="#8DBDB5"></stop>
+          <stop offset="0.8" stop-color="#F2EFE6"></stop>
+        </linearGradient>
+        <radialGradient id="hx-sun" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stop-color="#FFF8EA"></stop>
+          <stop offset="0.25" stop-color="#F7E6CB" stop-opacity="0.9"></stop>
+          <stop offset="0.6" stop-color="#E7B99A" stop-opacity="0.25"></stop>
+          <stop offset="1" stop-color="#E7B99A" stop-opacity="0"></stop>
+        </radialGradient>
+        <linearGradient id="hx-sea" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#3E8C95"></stop>
+          <stop offset="1" stop-color="#14333B"></stop>
+        </linearGradient>
+        <linearGradient id="hx-wall" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#F6F2E8"></stop>
+          <stop offset="1" stop-color="#E4DCC9"></stop>
+        </linearGradient>
+        <linearGradient id="hx-side" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#D8CFBB"></stop>
+          <stop offset="1" stop-color="#C6BBA3"></stop>
+        </linearGradient>
+        <radialGradient id="hx-glow" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stop-color="#FFE3B0" stop-opacity="0.55"></stop>
+          <stop offset="1" stop-color="#FFE3B0" stop-opacity="0"></stop>
+        </radialGradient>
+        <mask id="hx-hole" maskUnits="userSpaceOnUse" x="0" y="-400" width="1600" height="1800">
+          <rect y="-400" width="1600" height="1800" fill="#fff"></rect>
+          <rect x="635" y="290" width="330" height="420" fill="#000"></rect>
+        </mask>
+      </defs>
 
-  <svg class="waves" viewBox="0 0 1440 160" preserveAspectRatio="none" aria-hidden="true">
-    <path class="w w1" d="M-100 80 C 240 20, 480 140, 720 80 S 1200 20, 1540 80 V160 H-100Z"></path>
-    <path class="w w2" d="M-100 100 C 300 50, 500 150, 760 100 S 1180 60, 1540 100 V160 H-100Z"></path>
-    <path class="w w3" d="M-100 125 C 260 90, 520 160, 800 125 S 1200 100, 1540 125 V160 H-100Z"></path>
-  </svg>
+      <g mask="url(#hx-hole)">
+        <!-- sky, sun, ocean -->
+        <rect y="-400" width="1600" height="1400" fill="url(#hx-sky)"></rect>
+        <g class="sun" data-sun>
+          <circle cx="1535" cy="655" r="230" fill="url(#hx-sun)"></circle>
+          <circle cx="1535" cy="655" r="40" fill="#FFF8EA"></circle>
+        </g>
+        <rect y="700" width="1600" height="300" fill="url(#hx-sea)"></rect>
+        <g class="sea-lines" stroke="#F2EFE6" stroke-linecap="round" opacity="0.35">
+          {
+            Array.from({ length: 9 }, (_, i) => (
+              <path
+                d={`M${-40 + ((i * 137) % 300)} ${716 + i * i * 3.2} h${60 + i * 16} M${900 + ((i * 211) % 500)} ${720 + i * i * 3} h${50 + i * 14}`}
+                stroke-width={1 + i * 0.25}
+                style={`animation-delay:${-i * 0.7}s`}
+              />
+            ))
+          }
+        </g>
+        <path d="M1500 700 Q1545 684 1600 690 V700 H1500Z" fill="#1B424B"></path>
 
-  <div class="hero-foot container">
-    <p class="hero-note" data-fade>{t(lang, 'hero.stats.line')}</p>
-    <div class="scroll-hint" aria-hidden="true">
-      <span>{t(lang, 'hero.scroll')}</span>
-      <span class="scroll-line"></span>
+        <!-- left wing -->
+        <rect x="150" y="430" width="200" height="570" fill="url(#hx-side)"></rect>
+        <rect x="140" y="416" width="220" height="16" fill="#E9E3D5"></rect>
+
+        <!-- right wing -->
+        <rect x="1250" y="360" width="210" height="640" fill="url(#hx-side)"></rect>
+        <rect x="1240" y="346" width="230" height="16" fill="#E9E3D5"></rect>
+
+        <!-- main volume -->
+        <rect x="330" y="214" width="940" height="786" fill="url(#hx-wall)"></rect>
+        <rect x="312" y="190" width="976" height="26" fill="#EEE9DE"></rect>
+        <path d="M330 216 H1270 V236 L330 300 Z" fill="#14333B" opacity="0.07"></path>
+        <path d="M330 770 H1270" stroke="#14333B" stroke-opacity="0.08" stroke-width="2"></path>
+
+        <!-- window glow + frame -->
+        <ellipse cx="800" cy="500" rx="330" ry="330" fill="url(#hx-glow)"></ellipse>
+        <rect x="621" y="276" width="358" height="448" fill="#1B2F33"></rect>
+        <rect x="604" y="724" width="392" height="16" fill="#DCD3C0"></rect>
+        <path d="M604 740 H996 L1010 760 H590 Z" fill="#14333B" opacity="0.08"></path>
+
+        <!-- small window, left -->
+        <rect x="410" y="300" width="150" height="56" fill="#1B2F33"></rect>
+        <rect x="416" y="306" width="138" height="44" fill="#F3DDB4"></rect>
+
+        <!-- door, sconce, plate -->
+        <rect x="1080" y="790" width="120" height="210" fill="#14333B"></rect>
+        <rect x="1180" y="890" width="4" height="36" fill="#C9A97A"></rect>
+        <rect x="1056" y="820" width="8" height="22" rx="2" fill="#C9A97A"></rect>
+        <ellipse cx="1060" cy="846" rx="40" ry="46" fill="url(#hx-glow)"></ellipse>
+        <g transform="translate(1000 834) scale(0.16)">
+          <path d={SPIRAL} stroke="#2E7D8C" stroke-width="12" stroke-linecap="round" fill="none"></path>
+        </g>
+
+        <!-- planter + shrubs -->
+        <rect x="360" y="905" width="260" height="95" fill="#D9D0BC"></rect>
+        <g fill="#3F5F55">
+          <circle cx="400" cy="895" r="34"></circle>
+          <circle cx="450" cy="875" r="44"></circle>
+          <circle cx="510" cy="888" r="38"></circle>
+          <circle cx="570" cy="900" r="30"></circle>
+        </g>
+        <g fill="#5E7D6E">
+          <circle cx="430" cy="880" r="22"></circle>
+          <circle cx="495" cy="870" r="24"></circle>
+        </g>
+        <rect y="990" width="1600" height="410" fill="#C6BBA3"></rect>
+        <rect x="300" y="1060" width="1000" height="130" fill="#63A6A0"></rect>
+        <path d="M340 1100 h140 M620 1130 h180 M980 1095 h160 M420 1160 h120" stroke="#F2EFE6" stroke-width="3" stroke-linecap="round" opacity="0.6"></path>
+        <rect x="300" y="1190" width="1000" height="14" fill="#D9D0BC"></rect>
+      </g>
+    </svg>
+
+    <!-- ============ Copy that talks while you scroll ============ -->
+    <div class="hx-copy" aria-hidden="false">
+      <p class="hx-tag" data-hx-tag>{copy.tag}</p>
+      <h2 class="hx-a" data-hx-a>{copy.a}</h2>
+      <h2 class="hx-b" data-hx-b>{copy.b}</h2>
+    </div>
+    <p class="hx-inside" data-hx-inside>{copy.inside}</p>
+    <div class="hx-hint" data-hx-hint aria-hidden="true">
+      <span>{copy.hint}</span>
+      <span class="hx-mouse"><i></i></span>
     </div>
   </div>
 </section>
 
 <script>
-  const host = document.querySelector<HTMLElement>('[data-hero]');
-  const canvas = document.querySelector<HTMLCanvasElement>('[data-hero-gl]');
-  if (host && canvas) {
+  const hx = document.querySelector<HTMLElement>('[data-hx]');
+  if (hx) {
+    const $ = <T extends Element = HTMLElement>(s: string) => hx.querySelector<T>(s)!;
+    const room = $('[data-room]');
+    const art = $('[data-art]');
+    const facade = $<SVGSVGElement>('[data-facade]');
+    const sun = $<SVGGElement>('[data-sun]');
+    const tag = $('[data-hx-tag]');
+    const a = $('[data-hx-a]');
+    const b = $('[data-hx-b]');
+    const inside = $('[data-hx-inside]');
+    const hint = $('[data-hx-hint]');
+    const mark = $('[data-art-mark]');
+    const copyEl = $('[data-art-copy]');
+    const card = $('[data-art-card]');
+
+    const K = 0.3; // artwork scale on the wall
+    // portrait screens: taller framing (more sky + terrace), window stays centred
+    const frame = () =>
+      facade.setAttribute('viewBox', innerWidth / innerHeight < 0.8 ? '350 -350 900 1700' : '0 0 1600 1000');
+    frame();
+    window.addEventListener('resize', frame);
+    const clamp = (v: number, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
+    const ss = (e0: number, e1: number, x: number) => {
+      const t = clamp((x - e0) / (e1 - e0));
+      return t * t * (3 - 2 * t);
+    };
+    const state = { p: 0, v: 0 };
+
+    let mx = 0;
+    let my = 0;
+    let smx = 0;
+    let smy = 0;
+    window.addEventListener(
+      'pointermove',
+      (e) => {
+        mx = e.clientX / innerWidth - 0.5;
+        my = e.clientY / innerHeight - 0.5;
+      },
+      { passive: true }
+    );
+
+    const apply = () => {
+      const r = hx.getBoundingClientRect();
+      const total = hx.offsetHeight - innerHeight;
+      const p = clamp(-r.top / Math.max(1, total));
+      state.p = p;
+      smx += (mx - smx) * 0.06;
+      smy += (my - smy) * 0.06;
+
+      // 1. fly through the window
+      const fa = ss(0.02, 0.46, p);
+      const F = 1 + Math.pow(fa, 2.4) * 16;
+      facade.style.transform = `translate3d(${-smx * 14 * (1 - fa)}px, ${-smy * 10 * (1 - fa)}px, 0) scale(${F})`;
+      facade.style.opacity = String(1 - ss(0.4, 0.47, p));
+      facade.style.visibility = p > 0.48 ? 'hidden' : 'visible';
+      sun.style.transform = `translateY(${p * 160}px)`;
+
+      // 2. room: approach the wall, then push into the artwork
+      const Z0 = innerWidth < 700 ? 0.62 : 0.5;
+      const z1 = Z0 + (1 - Z0) * Math.pow(ss(0.02, 0.47, p), 1.6);
+      const push = ss(0.56, 0.9, p);
+      const Z = z1 * Math.exp(Math.log(1 / K) * push);
+      room.style.transform = `translate3d(${smx * 18 * (1 - push)}px, ${smy * 12 * (1 - push)}px, 0) scale(${Z})`;
+
+      // 3. hero3d composition: centred artwork → hero layout
+      state.v = ss(0.84, 0.97, p);
+
+      // talking copy
+      const out = ss(0.03, 0.2, p);
+      tag.style.opacity = String(1 - out);
+      a.style.transform = `translate3d(${-out * 40}vw, 0, 0)`;
+      b.style.transform = `translate3d(${out * 40}vw, 0, 0)`;
+      a.style.opacity = b.style.opacity = String(1 - out * 0.9);
+      hint.style.opacity = String(1 - ss(0.01, 0.06, p));
+      const inn = ss(0.44, 0.5, p) * (1 - ss(0.6, 0.66, p));
+      inside.style.opacity = String(inn);
+      inside.style.transform = `translate3d(-50%, ${(1 - inn) * 14}px, 0)`;
+      mark.style.opacity = String(1 - ss(0.74, 0.84, p));
+      const fin = ss(0.88, 0.98, p);
+      copyEl.style.opacity = String(fin);
+      copyEl.style.transform = `translate3d(0, ${(1 - fin) * 30}px, 0)`;
+      copyEl.style.pointerEvents = fin > 0.6 ? 'auto' : 'none';
+      card.style.opacity = String(ss(0.92, 1, p));
+    };
+
+    let raf = 0;
+    let on = false;
+    const loop = () => {
+      apply();
+      raf = requestAnimationFrame(loop);
+    };
+    new IntersectionObserver((en) =>
+      en.forEach((e) => {
+        if (e.isIntersecting && !on) {
+          on = true;
+          raf = requestAnimationFrame(loop);
+        } else if (!e.isIntersecting && on) {
+          on = false;
+          cancelAnimationFrame(raf);
+        }
+      })
+    ).observe(hx);
+    apply();
+
+    const canvas = $<HTMLCanvasElement>('[data-hero-gl]');
     import('../scripts/hero3d')
       .then(({ createHero3D }) => {
-        createHero3D(canvas, host);
-        requestAnimationFrame(() => host.classList.add('gl-on'));
+        createHero3D(canvas, art, { view: () => state.v, scroll: () => 0 });
+        requestAnimationFrame(() => art.classList.add('gl-on'));
       })
       .catch(() => {
-        /* SVG spiral fallback stays visible */
+        /* SVG spiral fallback stays */
       });
   }
 </script>
 
 <style>
-  .hero {
+  .hx {
     position: relative;
-    isolation: isolate;
-    min-height: 100svh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding-top: calc(var(--nav-h) + 20px);
-    padding-bottom: 34px;
-    overflow: hidden;
+    height: 460vh;
     background: #14333b;
+  }
+
+  .hx-stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  /* ---------------- interior ---------------- */
+  .room {
+    position: absolute;
+    inset: 0;
+    transform-origin: 50% 50%;
+    will-change: transform;
+    z-index: 0;
+  }
+
+  .wall {
+    position: absolute;
+    inset: -120%;
+    background:
+      radial-gradient(18% 16% at 50% 48%, rgba(255, 236, 205, 0.75), transparent 70%),
+      linear-gradient(180deg, #ebe3d1, #e2d8c2);
+  }
+
+  .shaft {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, rgba(255, 238, 205, 0.55) 0%, rgba(255, 238, 205, 0) 45%);
+    clip-path: polygon(0 0, 38% 0, 70% 100%, 20% 100%);
+    mix-blend-mode: soft-light;
+  }
+
+  .floor {
+    position: absolute;
+    left: -120%;
+    right: -120%;
+    bottom: -120%;
+    height: calc(17% + 120%);
+    background:
+      repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 11vw),
+      linear-gradient(180deg, #cbb089, #b59669);
+  }
+
+  .baseboard {
+    position: absolute;
+    left: -120%;
+    right: -120%;
+    bottom: 17%;
+    height: 1.2%;
+    background: #f4efe4;
+    box-shadow: 0 -1px 0 rgba(20, 51, 59, 0.06);
+  }
+
+  .lamp {
+    position: absolute;
+    left: 12%;
+    bottom: 12%;
+    height: 62%;
+  }
+
+  .plant {
+    position: absolute;
+    right: 10%;
+    bottom: 12%;
+    height: 58%;
+  }
+
+  .console {
+    position: absolute;
+    left: 50%;
+    bottom: 13%;
+    width: 36%;
+    transform: translateX(-50%);
+    overflow: visible;
+  }
+
+  .art {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100svh;
+    transform: scale(0.3);
+    transform-origin: 50% 50%;
+    background: #14333b;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 60px #f7f4ec,
+      0 0 0 64px #e2dbca,
+      0 0 0 100px #c9a97a,
+      0 0 0 106px #a8875a,
+      40px 80px 160px 60px rgba(20, 51, 59, 0.45);
     color: #f2efe6;
   }
 
-  .hero-glow {
-    position: absolute;
-    inset: 0;
-    z-index: -3;
-    background:
-      radial-gradient(60% 55% at 78% 45%, rgba(46, 125, 140, 0.45), transparent 70%),
-      radial-gradient(40% 40% at 10% 90%, rgba(99, 166, 160, 0.16), transparent 70%);
-  }
-
-  .hero-gl {
+  .art-gl,
+  .art-fallback {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    z-index: -2;
+  }
+
+  .art-fallback {
+    padding: 18% 30% 30%;
+  }
+
+  .art-gl {
     opacity: 0;
     transition: opacity 1.2s ease;
   }
 
-  .hero.gl-on .hero-gl {
+  .art.gl-on .art-gl {
     opacity: 1;
   }
 
-  .hero.gl-on .hero-art,
-  .hero.gl-on .tess,
-  .hero.gl-on .hero-glow {
+  .art.gl-on .art-fallback {
     display: none;
   }
 
-  .hero-inner::before {
-    content: '';
+  .art-mark {
     position: absolute;
-    inset: -60px -40px -60px -80px;
-    z-index: -1;
-    background: radial-gradient(60% 60% at 30% 50%, rgba(20, 51, 59, 0.55), transparent 75%);
+    left: 0;
+    right: 0;
+    bottom: 13%;
+    display: grid;
+    justify-items: center;
+    gap: 2.2vh;
     pointer-events: none;
   }
 
-  .hero-art {
-    position: absolute;
-    z-index: -2;
-    right: -4vw;
-    top: 50%;
-    width: min(62vw, 900px, 120svh);
-    transform: translateY(-42%);
-    pointer-events: none;
+  .art-mark span {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.4rem, 6vw, 6rem);
+    letter-spacing: 0.42em;
+    padding-left: 0.42em;
+    color: #f2efe6;
   }
 
-  .big-spiral {
-    width: 100%;
-    height: auto;
-    overflow: visible;
-    animation: spiral-breathe 9s ease-in-out infinite;
-  }
-
-  .spiral-line,
-  .spiral-glow,
-  .squares rect {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    animation: draw 3.6s 0.4s var(--ease-out) forwards;
-  }
-
-  .squares rect {
-    animation-duration: 2.4s;
-    animation-delay: 0.2s;
-  }
-
-  .spiral-glow {
-    opacity: 0.16;
-    filter: blur(5px);
-  }
-
-  .spiral-dot {
-    filter: drop-shadow(0 0 6px #63a6a0);
-  }
-
-  @keyframes draw {
-    to {
-      stroke-dashoffset: 0;
-    }
-  }
-
-  @keyframes spiral-breathe {
-    0%,
-    100% {
-      transform: rotate(-1.5deg) scale(1);
-    }
-    50% {
-      transform: rotate(1.5deg) scale(1.025);
-    }
-  }
-
-  .tess {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-  }
-
-  .tess-item {
-    position: absolute;
-    opacity: 0.16;
-    transform: rotate(var(--r));
-    animation: tess-float 11s ease-in-out infinite;
-  }
-
-  @keyframes tess-float {
-    0%,
-    100% {
-      transform: translateY(0) rotate(var(--r));
-    }
-    50% {
-      transform: translateY(-16px) rotate(var(--r));
-    }
-  }
-
-  .hero-inner {
-    position: relative;
-  }
-
-  .hero .kicker {
+  .art-mark small {
+    font-size: clamp(0.8rem, 1.3vw, 1.2rem);
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
     color: #63a6a0;
   }
 
-  .hero .kicker::before {
+  .art-copy {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    translate: 0 -46%;
+    opacity: 0;
+  }
+
+  .art-copy::before {
+    content: '';
+    position: absolute;
+    inset: -80px -60px -80px -120px;
+    z-index: -1;
+    background: radial-gradient(55% 60% at 25% 50%, rgba(20, 51, 59, 0.6), transparent 75%);
+    pointer-events: none;
+  }
+
+  .art-copy .kicker {
+    color: #63a6a0;
+  }
+
+  .art-copy .kicker::before {
     background: #63a6a0;
   }
 
   .hero-title {
     color: #f2efe6;
     font-weight: 400;
-    font-size: clamp(3rem, 7.6vw, 6.6rem);
+    font-size: clamp(2.8rem, 7vw, 6.2rem);
     line-height: 1;
     letter-spacing: -0.02em;
-    margin-top: 24px;
+    margin-top: 22px;
     max-width: 11ch;
-    will-change: transform;
   }
 
   .hero-title .line {
@@ -281,9 +548,9 @@ const tess = [
   }
 
   .hero-text {
-    margin-top: 28px;
+    margin-top: 26px;
     max-width: 44ch;
-    font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+    font-size: clamp(1rem, 1.4vw, 1.18rem);
     color: rgba(242, 239, 230, 0.78);
   }
 
@@ -291,7 +558,7 @@ const tess = [
     display: flex;
     flex-wrap: wrap;
     gap: 14px;
-    margin-top: 38px;
+    margin-top: 34px;
   }
 
   .btn-outline {
@@ -305,8 +572,8 @@ const tess = [
 
   .float-card {
     position: absolute;
-    right: max(24px, 8vw);
-    top: 22%;
+    right: max(24px, 7vw);
+    top: 20%;
     display: grid;
     gap: 6px;
     padding: 20px 24px;
@@ -316,17 +583,7 @@ const tess = [
     border: 1px solid rgba(242, 239, 230, 0.18);
     backdrop-filter: blur(16px);
     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
-    animation: card-float 7s ease-in-out infinite;
-  }
-
-  @keyframes card-float {
-    0%,
-    100% {
-      translate: 0 0;
-    }
-    50% {
-      translate: 0 -12px;
-    }
+    opacity: 0;
   }
 
   .fc-label {
@@ -358,7 +615,6 @@ const tess = [
 
   .fc-row b {
     color: #f2efe6;
-    font-weight: 600;
   }
 
   .fc-row em {
@@ -368,124 +624,200 @@ const tess = [
     margin-left: 8px;
   }
 
-  .waves {
+  /* ---------------- exterior ---------------- */
+  .facade {
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1px;
+    inset: 0;
     width: 100%;
-    height: 150px;
-    z-index: -1;
+    height: 100%;
+    z-index: 1;
+    transform-origin: 50% 50%;
+    will-change: transform;
+  }
+
+  .sea-lines path {
+    animation: glint 6s ease-in-out infinite alternate;
+  }
+
+  @keyframes glint {
+    from {
+      transform: translateX(-18px);
+      opacity: 0.3;
+    }
+    to {
+      transform: translateX(18px);
+      opacity: 1;
+    }
+  }
+
+  .hx-copy {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    display: grid;
+    grid-template-columns: 1fr min(24vw, 42vh) 1fr;
+    grid-template-rows: 1fr auto 1fr;
+    align-items: center;
+    column-gap: clamp(20px, 3vw, 48px);
+  }
+
+  .hx-tag {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    align-self: end;
+    justify-self: center;
+    margin-bottom: 38vh;
+    font-size: 0.72rem;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: #f2efe6;
+    text-shadow: 0 1px 12px rgba(20, 51, 59, 0.4);
+  }
+
+  .hx-a,
+  .hx-b {
+    grid-row: 2;
+    font-weight: 400;
+    font-size: clamp(2rem, 4.6vw, 4.6rem);
+    line-height: 1;
+    color: #14333b;
+    will-change: transform;
+  }
+
+  .hx-a {
+    grid-column: 1;
+    justify-self: end;
+    text-align: right;
+  }
+
+  .hx-b {
+    grid-column: 3;
+    justify-self: start;
+    color: #2e7d8c;
+    max-width: 8ch;
+  }
+
+  .hx-inside {
+    position: absolute;
+    left: 50%;
+    top: 12%;
+    z-index: 2;
+    opacity: 0;
+    transform: translateX(-50%);
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 2vw, 1.6rem);
+    color: #14333b;
+    white-space: nowrap;
     pointer-events: none;
   }
 
-  .w {
-    animation: wave 12s ease-in-out infinite alternate;
-  }
-  .w1 {
-    fill: rgba(46, 125, 140, 0.25);
-  }
-  .w2 {
-    fill: rgba(99, 166, 160, 0.18);
-    animation-duration: 16s;
-    animation-direction: alternate-reverse;
-  }
-  .w3 {
-    fill: #ffffff;
-    animation-duration: 20s;
-  }
-
-  @keyframes wave {
-    from {
-      transform: translateX(-3%);
-    }
-    to {
-      transform: translateX(3%);
-    }
-  }
-
-  .hero-foot {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 24px;
-    margin-top: auto;
-    padding-top: 60px;
-    position: relative;
-  }
-
-  .hero-note {
-    font-size: 0.8rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: rgba(242, 239, 230, 0.6);
-  }
-
-  .scroll-hint {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  .hx-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 26px;
+    z-index: 2;
+    transform: translateX(-50%);
+    display: grid;
+    justify-items: center;
     gap: 10px;
-    color: rgba(242, 239, 230, 0.6);
-    font-size: 0.72rem;
-    letter-spacing: 0.22em;
+    font-size: 0.68rem;
+    letter-spacing: 0.28em;
     text-transform: uppercase;
+    color: #14333b;
+    pointer-events: none;
   }
 
-  .scroll-line {
-    width: 1px;
-    height: 44px;
-    background: linear-gradient(180deg, #63a6a0, transparent);
-    animation: scroll-pulse 1.8s var(--ease-out) infinite;
+  .hx-mouse {
+    width: 22px;
+    height: 34px;
+    border: 1.5px solid rgba(20, 51, 59, 0.6);
+    border-radius: 12px;
+    display: grid;
+    justify-items: center;
+    padding-top: 6px;
   }
 
-  @keyframes scroll-pulse {
-    0%,
-    100% {
-      opacity: 0.35;
-      transform: scaleY(0.7);
-      transform-origin: top;
-    }
-    50% {
+  .hx-mouse i {
+    width: 3px;
+    height: 7px;
+    border-radius: 2px;
+    background: #14333b;
+    animation: wheel 1.6s ease-in-out infinite;
+  }
+
+  @keyframes wheel {
+    0% {
+      transform: translateY(0);
       opacity: 1;
-      transform: scaleY(1);
+    }
+    100% {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .hx-copy {
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr auto 1fr;
+      justify-items: center;
+    }
+    .hx-tag {
+      margin-bottom: 0;
+      align-self: start;
+      margin-top: 96px;
+      text-align: center;
+      padding-inline: 24px;
+      line-height: 1.8;
+    }
+    .hx-a,
+    .hx-b {
+      grid-column: 1;
+      justify-self: center;
+      text-align: center;
+      max-width: none;
+      font-size: clamp(2rem, 9vw, 3rem);
+      color: #f2efe6;
+      text-shadow: 0 2px 20px rgba(20, 51, 59, 0.55);
+    }
+    .hx-a {
+      grid-row: 1;
+      align-self: end;
+      margin-bottom: 19vh;
+    }
+    .hx-b {
+      grid-row: 3;
+      align-self: start;
+      margin-top: 21vh;
+      color: #14333b;
+      text-shadow: none;
+      max-width: 12ch;
+    }
+    .hx-hint {
+      color: #14333b;
+    }
+    .hx-inside {
+      white-space: normal;
+      width: 80%;
+      text-align: center;
+    }
+    .float-card {
+      display: none;
+    }
+    .lamp,
+    .plant {
+      display: none;
+    }
+    .console {
+      width: 70%;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .scroll-line,
-    .big-spiral,
-    .tess-item,
-    .float-card,
-    .w {
+    .sea-lines path,
+    .hx-mouse i {
       animation: none;
-    }
-    .spiral-line,
-    .spiral-glow,
-    .squares rect {
-      animation: none;
-      stroke-dashoffset: 0;
-    }
-  }
-
-  @media (max-width: 700px) {
-    .hero.gl-on .hero-gl {
-      opacity: 0.55;
-    }
-  }
-
-  @media (max-width: 900px) {
-    .hero-art {
-      width: 120vw;
-      right: -30vw;
-      opacity: 0.55;
-    }
-    .float-card,
-    .scroll-hint {
-      display: none;
-    }
-    .hero-foot {
-      margin-top: 48px;
     }
   }
 </style>

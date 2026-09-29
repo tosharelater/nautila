@@ -55,6 +55,14 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : As
 
     <div class="progress" aria-hidden="true"><span class="bar" data-progress-bar></span></div>
 
+    <a class="spiral-top" href="#top" data-nav-link data-spiral-top aria-label={lang === 'en' ? 'Back to top' : 'Retour en haut'}>
+      <svg viewBox="-70 -8 176 116" fill="none" aria-hidden="true">
+        <path class="st-track" pathLength="1" d="M-14.59 38.2 A14.59 14.59 0 0 0 0 23.61 A23.61 23.61 0 0 0 -23.61 0 A38.2 38.2 0 0 0 -61.8 38.2 A61.8 61.8 0 0 0 0 100 A100 100 0 0 0 100 0"></path>
+        <path class="st-fill" pathLength="1" data-spiral-fill d="M-14.59 38.2 A14.59 14.59 0 0 0 0 23.61 A23.61 23.61 0 0 0 -23.61 0 A38.2 38.2 0 0 0 -61.8 38.2 A61.8 61.8 0 0 0 0 100 A100 100 0 0 0 100 0"></path>
+      </svg>
+      <span class="st-pct tnum" data-spiral-pct>0</span>
+    </a>
+
     <Nav lang={lang} />
 
     <div>

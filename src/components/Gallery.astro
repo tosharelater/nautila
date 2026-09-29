@@ -6,35 +6,38 @@ interface Props {
 }
 const { lang } = Astro.props;
 
-// Replace `src` with real photos in /public/photos — Brand Book p.10:
-// real stays, grazing 5 pm light, linen / light wood / brass. No stock, no HDR.
+// Illustrative Unsplash photos (Unsplash licence) until Nautila's own shoots are ready —
+// Brand Book p.10: real stays, grazing 5 pm light, linen / light wood / brass. No HDR.
+const unsplash = (id: string, w = 900) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=72`;
 const copy = {
   fr: {
     kicker: 'Nos biens',
     title: 'Lumière atlantique, fin de journée',
-    lead: 'Des logements réels, photographiés tels qu’ils sont. Lin, bois clair, laiton.',
+    lead: 'Lin, bois clair, laiton : la lumière atlantique de fin de journée, dans chaque logement.',
     hint: 'Glissez pour parcourir',
+    note: 'Photos d’illustration',
     items: [
-      { t: 'Harhoura — vue océan', m: '3 pièces · linge hôtelier · serrure connectée', ph: 'photo — séjour, lumière 17 h', w: 'wide' },
-      { t: 'Agdal — Rabat', m: '2 pièces · check-in digital', ph: 'photo — chambre', w: '' },
-      { t: 'Bouznika — terrasse', m: '3 pièces · vue mer', ph: 'photo — terrasse', w: 'tall' },
-      { t: 'Détail matière', m: 'lin, bois clair, laiton', ph: 'photo — détail matière', w: '' },
-      { t: 'Casablanca — Gauthier', m: '2 pièces · centre-ville', ph: 'photo — séjour', w: 'wide' },
-      { t: 'Témara — plage', m: 'studio · 10 min de l’océan', ph: 'photo — cuisine', w: '' },
+      { t: 'Harhoura — vue océan', m: '3 pièces · linge hôtelier · serrure connectée', ph: 'photo — séjour, lumière 17 h', w: 'wide', img: 'photo-1778137736743-e649b1e954d3' },
+      { t: 'Agdal — Rabat', m: '2 pièces · check-in digital', ph: 'photo — chambre', w: '', img: 'photo-1783990350684-71c38af04a8a' },
+      { t: 'Bouznika — terrasse', m: '3 pièces · vue mer', ph: 'photo — terrasse', w: 'tall', img: 'photo-1606135330566-90d791d50604' },
+      { t: 'Détail matière', m: 'lin, bois clair, laiton', ph: 'photo — détail matière', w: '', img: 'photo-1778764988229-8325d74dfbfe' },
+      { t: 'Casablanca — Gauthier', m: '2 pièces · centre-ville', ph: 'photo — séjour', w: 'wide', img: 'photo-1772797583328-f83bc3f94f80' },
+      { t: 'Témara — plage', m: 'studio · 10 min de l’océan', ph: 'photo — cuisine', w: '', img: 'photo-1783990349147-906f62b882c1' },
     ],
   },
   en: {
     kicker: 'Our homes',
     title: 'Atlantic light, late afternoon',
-    lead: 'Real homes, photographed as they are. Linen, light wood, brass.',
+    lead: 'Linen, light wood, brass: late-afternoon Atlantic light, in every home.',
     hint: 'Drag to browse',
+    note: 'Illustrative photos',
     items: [
-      { t: 'Harhoura — ocean view', m: '3 rooms · hotel linen · connected lock', ph: 'photo — living room, 5 pm light', w: 'wide' },
-      { t: 'Agdal — Rabat', m: '2 rooms · digital check-in', ph: 'photo — bedroom', w: '' },
-      { t: 'Bouznika — terrace', m: '3 rooms · sea view', ph: 'photo — terrace', w: 'tall' },
-      { t: 'Material detail', m: 'linen, light wood, brass', ph: 'photo — material detail', w: '' },
-      { t: 'Casablanca — Gauthier', m: '2 rooms · city centre', ph: 'photo — living room', w: 'wide' },
-      { t: 'Témara — beach', m: 'studio · 10 min from the ocean', ph: 'photo — kitchen', w: '' },
+      { t: 'Harhoura — ocean view', m: '3 rooms · hotel linen · connected lock', ph: 'photo — living room, 5 pm light', w: 'wide', img: 'photo-1778137736743-e649b1e954d3' },
+      { t: 'Agdal — Rabat', m: '2 rooms · digital check-in', ph: 'photo — bedroom', w: '', img: 'photo-1783990350684-71c38af04a8a' },
+      { t: 'Bouznika — terrace', m: '3 rooms · sea view', ph: 'photo — terrace', w: 'tall', img: 'photo-1606135330566-90d791d50604' },
+      { t: 'Material detail', m: 'linen, light wood, brass', ph: 'photo — material detail', w: '', img: 'photo-1778764988229-8325d74dfbfe' },
+      { t: 'Casablanca — Gauthier', m: '2 rooms · city centre', ph: 'photo — living room', w: 'wide', img: 'photo-1772797583328-f83bc3f94f80' },
+      { t: 'Témara — beach', m: 'studio · 10 min from the ocean', ph: 'photo — kitchen', w: '', img: 'photo-1783990349147-906f62b882c1' },
     ],
   },
 }[lang];
@@ -56,6 +59,16 @@ const copy = {
       copy.items.map((it, i) => (
         <figure class:list={['gal-item', it.w]} data-fade style={`transition-delay:${i * 70}ms`}>
           <div class="gal-img ph" data-label={it.ph}>
+            <img
+              src={unsplash(it.img)}
+              srcset={`${unsplash(it.img, 600)} 600w, ${unsplash(it.img, 900)} 900w, ${unsplash(it.img, 1300)} 1300w`}
+              sizes="(max-width: 700px) 80vw, 40vw"
+              alt={`${it.t} — ${it.m}`}
+              loading="lazy"
+              decoding="async"
+              draggable="false"
+              data-gal-pic
+            />
             <div class="gal-sun" aria-hidden="true" />
           </div>
           <figcaption>
@@ -69,6 +82,7 @@ const copy = {
 
   <div class="container gal-foot">
     <span class="gal-hint">{copy.hint}</span>
+    <span class="gal-hint">{copy.note}</span>
     <div class="gal-bar"><span data-gal-bar></span></div>
   </div>
 </section>
@@ -77,10 +91,18 @@ const copy = {
   const track = document.querySelector<HTMLElement>('[data-gal]');
   const bar = document.querySelector<HTMLElement>('[data-gal-bar]');
   if (track) {
+    const pics = Array.from(track.querySelectorAll<HTMLElement>('[data-gal-pic]'));
     const upd = () => {
       const max = track.scrollWidth - track.clientWidth;
       if (bar) bar.style.transform = `scaleX(${max > 0 ? 0.15 + 0.85 * (track.scrollLeft / max) : 1})`;
+      // inner parallax: each photo drifts against the strip
+      pics.forEach((img) => {
+        const r = img.parentElement!.getBoundingClientRect();
+        const c = (r.left + r.width / 2) / innerWidth - 0.5;
+        img.style.transform = `translate3d(${c * -8}%, 0, 0) scale(1.16)`;
+      });
     };
+    window.addEventListener('scroll', upd, { passive: true });
     track.addEventListener('scroll', upd, { passive: true });
     upd();
 
@@ -166,9 +188,39 @@ const copy = {
     transform: translateY(-6px);
   }
 
+  .gal-img img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.16);
+    filter: saturate(0.88) contrast(0.98);
+    transition: filter 0.6s;
+    user-select: none;
+  }
+
+  .gal-item:hover .gal-img img {
+    filter: saturate(1) contrast(1);
+  }
+
+  .gal-img::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(180deg, transparent 60%, rgba(20, 51, 59, 0.25));
+    pointer-events: none;
+  }
+
+  .gal-img.ph::after {
+    z-index: 0;
+  }
+
   /* warm grazing-light glow that tracks the pointer */
   .gal-sun {
     position: absolute;
+    z-index: 2;
     inset: 0;
     background: radial-gradient(40% 50% at var(--lx, 80%) var(--ly, 20%), rgba(255, 236, 200, 0.55), transparent 70%);
     mix-blend-mode: soft-light;
@@ -206,6 +258,17 @@ const copy = {
     text-transform: uppercase;
     color: var(--ink-300);
     white-space: nowrap;
+  }
+
+  @media (max-width: 600px) {
+    .gal-foot {
+      flex-wrap: wrap;
+      gap: 10px 20px;
+    }
+    .gal-bar {
+      order: 3;
+      flex-basis: 100%;
+    }
   }
 
   .gal-bar {

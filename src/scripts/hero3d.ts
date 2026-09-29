@@ -137,7 +137,14 @@ function taperedTube(curve: THREE.Curve<THREE.Vector3>, tubular: number, radial:
   return geo;
 }
 
-export function createHero3D(canvas: HTMLCanvasElement, host: HTMLElement) {
+export interface Hero3DOptions {
+  /** 0 = centred "artwork" composition, 1 = hero layout (spiral on the right) */
+  view?: () => number;
+  /** 0…1 scroll progress used for the uncoil; defaults to window scroll / host height */
+  scroll?: () => number;
+}
+
+export function createHero3D(canvas: HTMLCanvasElement, host: HTMLElement, opts: Hero3DOptions = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
   const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
   renderer.setPixelRatio(dpr);
@@ -291,9 +298,9 @@ export function createHero3D(canvas: HTMLCanvasElement, host: HTMLElement) {
   let baseScale = 1;
   let baseY = -0.1;
   const resize = () => {
-    const r = host.getBoundingClientRect();
-    W = Math.max(1, r.width);
-    H = Math.max(1, r.height);
+    // layout size, not the transformed (zoomed) box
+    W = Math.max(1, host.clientWidth);
+    H = Math.max(1, host.clientHeight);
     renderer.setSize(W, H, false);
     camera.aspect = W / H;
     camera.updateProjectionMatrix();
@@ -308,12 +315,11 @@ export function createHero3D(canvas: HTMLCanvasElement, host: HTMLElement) {
 
   // --- Interaction -------------------------------------------------------
   const mouse = { x: 0, y: 0, sx: 0, sy: 0 };
-  host.addEventListener(
+  window.addEventListener(
     'pointermove',
     (e) => {
-      const r = host.getBoundingClientRect();
-      mouse.x = ((e.clientX - r.left) / r.width) * 2 - 1;
-      mouse.y = -(((e.clientY - r.top) / r.height) * 2 - 1);
+      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -((e.clientY / window.innerHeight) * 2 - 1);
     },
     { passive: true }
   );
@@ -342,7 +348,11 @@ export function createHero3D(canvas: HTMLCanvasElement, host: HTMLElement) {
     mouse.sx += (mouse.x - mouse.sx) * 0.05;
     mouse.sy += (mouse.y - mouse.sy) * 0.05;
 
-    const scroll = Math.min(1, Math.max(0, window.scrollY / H));
+    const scroll = Math.min(1, Math.max(0, opts.scroll ? opts.scroll() : window.scrollY / H));
+    const v = opts.view ? Math.min(1, Math.max(0, opts.view())) : 1;
+    const vx = baseX * v;
+    const vy = baseY * v + (1 - v) * 0.5;
+    const vs = baseScale * v + (1 - v) * (W / H > 1.1 ? 1.35 : 0.85);
 
     bgMat.uniforms.uTime.value = t;
     bgMat.uniforms.uMouse.value.set(mouse.sx, mouse.sy);
@@ -351,8 +361,8 @@ export function createHero3D(canvas: HTMLCanvasElement, host: HTMLElement) {
     pMat.uniforms.uTime.value = t;
     lineMat.opacity = 0.12 * e * (1 - scroll);
 
-    group.position.set(baseX + mouse.sx * 0.25, baseY + mouse.sy * 0.15 + scroll * 1.2, 0);
-    const s = baseScale * (0.85 + 0.15 * e) * (1 + scroll * 0.6);
+    group.position.set(vx + mouse.sx * 0.25, vy + mouse.sy * 0.15 + scroll * 1.2, 0);
+    const s = vs * (0.85 + 0.15 * e) * (1 + scroll * 0.6);
     group.scale.setScalar(s * 1.55);
     group.rotation.set(
       -0.35 + mouse.sy * 0.25 + scroll * 0.6,

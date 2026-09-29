@@ -20,7 +20,18 @@ const words =
   data-words={JSON.stringify(words)}
   data-finale="Nautila"
 >
+  <script is:inline>
+    try {
+      if (sessionStorage.getItem('nautila-splash')) document.documentElement.classList.add('splash-seen');
+    } catch (e) {}
+  </script>
+  <div class="splash-glow" aria-hidden="true"></div>
   <canvas class="splash-canvas" data-splash-canvas aria-hidden="true"></canvas>
+  <p class="splash-tag" data-splash-tag>{lang === 'en' ? 'Your home, perfectly kept' : 'Vos biens, parfaitement protégés'}</p>
+  <div class="splash-foot" aria-hidden="true">
+    <span>Casablanca · Bouznika · Rabat · Témara</span>
+    <span class="splash-line"><i></i></span>
+  </div>
   <button class="splash-skip" type="button" data-splash-skip>
     {lang === 'en' ? 'Skip' : 'Passer'}
   </button>
@@ -39,14 +50,91 @@ const words =
     z-index: 100;
     display: grid;
     place-items: center;
-    background: linear-gradient(165deg, #14333B 0%, #14333B 45%, #1b424b 100%);
-    transition: opacity 0.65s var(--ease-out), visibility 0.65s;
+    background: #14333b;
+    --cx: 50vw;
+    --cy: 45vh;
+    clip-path: circle(150% at var(--cx) var(--cy));
+    transition: clip-path 0.95s cubic-bezier(0.7, 0, 0.2, 1), visibility 0.95s;
+  }
+
+  html.splash-seen .splash {
+    display: none;
   }
 
   .splash.is-out {
-    opacity: 0;
+    clip-path: circle(0% at var(--cx) var(--cy));
     visibility: hidden;
     pointer-events: none;
+  }
+
+  .splash-glow {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(50% 45% at var(--cx) var(--cy), rgba(46, 125, 140, 0.35), transparent 70%),
+      radial-gradient(120% 90% at 50% 120%, #0e262c, transparent 60%);
+    pointer-events: none;
+  }
+
+  .splash-tag {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 70%;
+    text-align: center;
+    font-size: clamp(0.66rem, 1.1vw, 0.8rem);
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: #63a6a0;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+  }
+
+  .splash-tag.show {
+    opacity: 1;
+    transform: none;
+  }
+
+  .splash-foot {
+    position: absolute;
+    left: 50%;
+    bottom: 34px;
+    transform: translateX(-50%);
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(242, 239, 230, 0.35);
+    white-space: nowrap;
+  }
+
+  .splash-line {
+    width: 120px;
+    height: 1px;
+    background: rgba(242, 239, 230, 0.12);
+    overflow: hidden;
+  }
+
+  .splash-line i {
+    display: block;
+    height: 100%;
+    background: #63a6a0;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+  }
+
+  .splash.is-running .splash-line i {
+    transform: scaleX(1);
+    transition: transform 6.8s linear;
+  }
+
+  @media (max-width: 600px) {
+    .splash-foot span:first-child {
+      display: none;
+    }
   }
 
   .splash-canvas {
@@ -101,6 +189,7 @@ const words =
       finale: root.dataset.finale || 'Nautila',
       color: '#63A6A0',
       accent: '#F2EFE6',
+      tagEl: root.querySelector<HTMLElement>('[data-splash-tag]'),
     });
 
     const skip = () => handle?.skip();
