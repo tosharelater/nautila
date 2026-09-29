@@ -1,0 +1,137 @@
+---
+import { type Lang, t, tr } from '../i18n/ui';
+import ShellLogo from './ShellLogo.astro';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+
+const productLinks = tr<string[]>(lang, 'footer.links.product');
+const companyLinks = tr<string[]>(lang, 'footer.links.company');
+---
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a class="brand" href={lang === 'en' ? `${base}en/` : base} aria-label="Nautila — home">
+        <ShellLogo size={26} color="#2E7D8C" />
+        <span>Nautila</span>
+      </a>
+      <p class="tagline">{t(lang, 'footer.tagline')}</p>
+    </div>
+
+    <nav class="footer-col" aria-label={t(lang, 'footer.columns.product')}>
+      <h3>{t(lang, 'footer.columns.product')}</h3>
+      {productLinks.map((l, i) => <a href={["#services", "#report", "#process"][i] ?? "#services"}>{l}</a>)}
+    </nav>
+
+    <nav class="footer-col" aria-label={t(lang, 'footer.columns.company')}>
+      <h3>{t(lang, 'footer.columns.company')}</h3>
+      {companyLinks.map((l) => <a href="#zones">{l}</a>)}
+    </nav>
+
+    <div class="footer-col">
+      <h3>Nautila</h3>
+      <a href="#top">{t(lang, 'footer.legal')}</a>
+      <a href="#top">{t(lang, 'footer.privacy')}</a>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <p>© {new Date().getFullYear()} Nautila — {t(lang, 'footer.rights')}</p>
+    <p class="footer-woah">Crafted with <span class="grad-text">confiance · revenus · technologie</span></p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--hairline);
+    padding-top: 64px;
+    background: linear-gradient(180deg, transparent, rgba(46, 125, 140, 0.08));
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 36px;
+    padding-bottom: 48px;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--green-900);
+  }
+
+  .dot {
+    background: var(--brand-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .tagline {
+    margin-top: 12px;
+    color: var(--ink-500);
+    font-size: 0.92rem;
+  }
+
+  .footer-col {
+    display: grid;
+    gap: 10px;
+    align-content: start;
+  }
+
+  .footer-col h3 {
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-300);
+    font-family: var(--font-body);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .footer-col a {
+    color: var(--ink-700);
+    font-size: 0.92rem;
+    width: fit-content;
+    transition: color 0.25s;
+  }
+
+  .footer-col a:hover {
+    color: var(--green-900);
+  }
+
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-block: 22px;
+    border-top: 1px solid var(--hairline);
+    font-size: 0.84rem;
+    color: var(--ink-500);
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 900px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

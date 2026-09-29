@@ -1,0 +1,412 @@
+---
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const copy = {
+  fr: {
+    kicker: 'Rapport mensuel',
+    title: 'Vos chiffres, sans surprise',
+    lead: 'Chaque début de mois, un rapport lisible en deux minutes : ce que le bien a rapporté, quand il était occupé, ce qui a été fait.',
+    sample: 'Exemple de rapport',
+    head: 'Rapport mensuel · octobre 2026',
+    home: 'Appartement Agdal · 2 pièces',
+    kpis: [
+      { l: 'Revenus du mois', v: '28 450', u: 'MAD', d: '+12,4 %', pos: true },
+      { l: 'Occupation', v: '87', u: '%', d: '+4 pts', pos: true },
+      { l: 'Nuits réservées', v: '26', u: 'nuits', d: '6 séjours', pos: null },
+      { l: 'Charges', v: '1 240', u: 'MAD', d: '−3,1 %', pos: false },
+    ],
+    cal: 'Calendrier d’occupation',
+    booked: 'réservé',
+    free: 'libre',
+    days: ['L', 'M', 'M', 'J', 'V', 'S', 'D'],
+    log: 'Interventions',
+    items: [
+      { d: '12 oct.', t: 'Mitigeur salle de bain remplacé', a: '240 MAD' },
+      { d: '19 oct.', t: 'Linge renouvelé (2 parures)', a: '—' },
+      { d: '27 oct.', t: 'Contrôle serrure connectée', a: '—' },
+    ],
+    note: 'Tout est en ordre.',
+  },
+  en: {
+    kicker: 'Monthly report',
+    title: 'Your numbers, no surprises',
+    lead: 'At the start of each month, a report you can read in two minutes: what the home earned, when it was occupied, what was done.',
+    sample: 'Sample report',
+    head: 'Monthly report · October 2026',
+    home: 'Agdal apartment · 2 rooms',
+    kpis: [
+      { l: 'Revenue this month', v: '28,450', u: 'MAD', d: '+12.4%', pos: true },
+      { l: 'Occupancy', v: '87', u: '%', d: '+4 pts', pos: true },
+      { l: 'Nights booked', v: '26', u: 'nights', d: '6 stays', pos: null },
+      { l: 'Costs', v: '1,240', u: 'MAD', d: '−3.1%', pos: false },
+    ],
+    cal: 'Occupancy calendar',
+    booked: 'booked',
+    free: 'free',
+    days: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
+    log: 'Interventions',
+    items: [
+      { d: 'Oct 12', t: 'Bathroom mixer tap replaced', a: '240 MAD' },
+      { d: 'Oct 19', t: 'Linen renewed (2 sets)', a: '—' },
+      { d: 'Oct 27', t: 'Connected lock check', a: '—' },
+    ],
+    note: 'Everything is in order.',
+  },
+}[lang];
+
+// October 2026 starts on a Thursday → 3 leading blanks (Mon-first). 26 booked nights, 6 stays.
+const free = new Set([7, 8, 14, 20, 21]);
+const days = Array.from({ length: 31 }, (_, i) => ({ n: i + 1, booked: !free.has(i + 1) }));
+---
+
+<section class="section report bg-petrole" id="report">
+  <div class="rep-bgspiral" aria-hidden="true">
+    <svg viewBox="-66 -5 172 110" fill="none">
+      <path
+        d="M100 0 A100 100 0 0 1 0 100 A61.8 61.8 0 0 1 -61.8 38.2 A38.2 38.2 0 0 1 -23.61 0 A23.61 23.61 0 0 1 0 23.61 A14.59 14.59 0 0 1 -14.59 38.2"
+        stroke="#63A6A0"
+        stroke-width="2"
+        stroke-linecap="round"></path>
+    </svg>
+  </div>
+
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="kicker" data-fade>{copy.kicker}</p>
+        <h2 class="section-title" data-fade>{copy.title}</h2>
+      </div>
+      <p class="section-lead" data-fade>{copy.lead}</p>
+    </div>
+
+    <div class="rep" data-fade data-report>
+      <header class="rep-head">
+        <div>
+          <span class="rep-label">{copy.head}</span>
+          <strong>{copy.home}</strong>
+        </div>
+        <span class="rep-badge">{copy.sample}</span>
+      </header>
+
+      <div class="rep-kpis">
+        {
+          copy.kpis.map((k) => (
+            <div class="kpi">
+              <span class="kpi-l">{k.l}</span>
+              <span class="kpi-v tnum">
+                {k.v} <small>{k.u}</small>
+              </span>
+              <span class:list={['kpi-d tnum', { pos: k.pos === true, neg: k.pos === false }]}>{k.d}</span>
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="rep-body">
+        <div class="rep-cal">
+          <div class="rep-sub">
+            <span>{copy.cal}</span>
+            <span class="legend"><i class="b"></i>{copy.booked} <i></i>{copy.free}</span>
+          </div>
+          <div class="cal">
+            {copy.days.map((d) => <span class="dow">{d}</span>)}
+            <span></span><span></span><span></span>
+            {
+              days.map((d, i) => (
+                <span class:list={['day tnum', { booked: d.booked }]} style={`--i:${i}`}>
+                  {d.n}
+                </span>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="rep-log">
+          <div class="rep-sub"><span>{copy.log}</span></div>
+          <ul>
+            {
+              copy.items.map((it) => (
+                <li>
+                  <span class="log-d tnum">{it.d}</span>
+                  <span class="log-t">{it.t}</span>
+                  <span class="log-a tnum">{it.a}</span>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="rep-note">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12l5 5 9-10" /></svg>
+            {copy.note}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const rep = document.querySelector('[data-report]');
+  if (rep && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(
+      (en) =>
+        en.forEach((e) => {
+          if (e.isIntersecting) {
+            rep.classList.add('is-on');
+            io.disconnect();
+          }
+        }),
+      { threshold: 0.3 }
+    );
+    io.observe(rep);
+  } else rep?.classList.add('is-on');
+</script>
+
+<style>
+  .report {
+    overflow: hidden;
+  }
+
+  .rep-bgspiral {
+    position: absolute;
+    right: -12%;
+    top: -10%;
+    width: min(70vw, 900px);
+    opacity: 0.12;
+    pointer-events: none;
+  }
+
+  .rep {
+    position: relative;
+    margin-top: clamp(40px, 6vw, 72px);
+    border-radius: 20px;
+    background: rgba(242, 239, 230, 0.04);
+    border: 1px solid rgba(242, 239, 230, 0.12);
+    backdrop-filter: blur(10px);
+    padding: clamp(22px, 3vw, 38px);
+    box-shadow: 0 40px 120px rgba(0, 0, 0, 0.35);
+  }
+
+  .rep-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid rgba(242, 239, 230, 0.12);
+  }
+
+  .rep-label,
+  .rep-sub,
+  .kpi-l {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(242, 239, 230, 0.55);
+  }
+
+  .rep-head strong {
+    display: block;
+    margin-top: 6px;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.4rem;
+  }
+
+  .rep-badge {
+    font-size: 0.72rem;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px dashed rgba(99, 166, 160, 0.6);
+    color: #63a6a0;
+    white-space: nowrap;
+  }
+
+  .rep-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid rgba(242, 239, 230, 0.12);
+  }
+
+  .kpi {
+    display: grid;
+    gap: 8px;
+    padding: 26px 22px 26px 0;
+  }
+
+  .kpi + .kpi {
+    padding-left: 22px;
+    border-left: 1px solid rgba(242, 239, 230, 0.12);
+  }
+
+  .kpi-v {
+    font-size: clamp(1.7rem, 3vw, 2.4rem);
+    font-weight: 600;
+    line-height: 1;
+    text-align: left;
+  }
+
+  .kpi-v small {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: rgba(242, 239, 230, 0.5);
+  }
+
+  .kpi-d {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(242, 239, 230, 0.6);
+  }
+
+  .kpi-d.pos {
+    color: #63a6a0;
+  }
+
+  .kpi-d.neg {
+    color: #c9765c;
+  }
+
+  .rep-body {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: clamp(24px, 4vw, 56px);
+    padding-top: 26px;
+  }
+
+  .rep-body > *,
+  .kpi {
+    min-width: 0;
+  }
+
+  .rep-sub {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.08em;
+  }
+
+  .legend i {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    background: rgba(242, 239, 230, 0.1);
+    margin-left: 8px;
+  }
+
+  .legend i.b {
+    background: #2e7d8c;
+  }
+
+  .cal {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+
+  .dow {
+    font-size: 0.7rem;
+    text-align: center;
+    color: rgba(242, 239, 230, 0.45);
+    padding-bottom: 4px;
+  }
+
+  .day {
+    aspect-ratio: 1.9;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    background: rgba(242, 239, 230, 0.06);
+    color: rgba(242, 239, 230, 0.5);
+  }
+
+  .day.booked {
+    color: #f2efe6;
+    background: rgba(242, 239, 230, 0.06);
+    transition: background 0.5s ease calc(var(--i) * 28ms), box-shadow 0.5s ease calc(var(--i) * 28ms);
+  }
+
+  .is-on .day.booked {
+    background: #2e7d8c;
+    box-shadow: inset 0 0 0 1px rgba(99, 166, 160, 0.5);
+  }
+
+  .rep-log ul {
+    display: grid;
+  }
+
+  .rep-log li {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(242, 239, 230, 0.1);
+    font-size: 0.92rem;
+  }
+
+  .log-d {
+    color: rgba(242, 239, 230, 0.5);
+  }
+
+  .log-a {
+    text-align: right;
+    font-weight: 600;
+  }
+
+  .rep-note {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    color: #63a6a0;
+    font-weight: 500;
+  }
+
+  .rep-note svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  @media (max-width: 900px) {
+    .rep-kpis {
+      grid-template-columns: 1fr 1fr;
+    }
+    .kpi + .kpi:nth-child(3) {
+      border-left: 0;
+      padding-left: 0;
+    }
+    .cal {
+      gap: 4px;
+    }
+    .day {
+      aspect-ratio: 1.15;
+      font-size: 0.72rem;
+      border-radius: 6px;
+    }
+    .kpi:nth-child(n + 3) {
+      border-top: 1px solid rgba(242, 239, 230, 0.12);
+    }
+    .rep-body {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,299 @@
+---
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const EMAIL = 'hello@nautila.ma';
+
+const copy = {
+  fr: {
+    kicker: 'Contact',
+    title: 'Vos biens, parfaitement protégés',
+    lead: 'Parlez-nous de votre logement. Nous revenons vers vous pour organiser une visite.',
+    points: ['Visite du bien', 'Estimation précise', 'Mise en ligne accompagnée'],
+    name: 'Nom',
+    phone: 'Téléphone',
+    email: 'Email',
+    zone: 'Zone',
+    type: 'Type de bien',
+    msg: 'Message (optionnel)',
+    zones: ['Casablanca', 'Bouznika', 'Témara-Harhoura', 'Rabat'],
+    types: ['Studio', '2 pièces', '3 pièces', '4 pièces +', 'Villa'],
+    send: 'Envoyer la demande',
+    subject: 'Demande propriétaire — Nautila',
+    ok: 'Merci. Votre messagerie s’ouvre avec la demande pré-remplie.',
+  },
+  en: {
+    kicker: 'Contact',
+    title: 'Your home, perfectly kept',
+    lead: 'Tell us about your home. We will get back to you to arrange a visit.',
+    points: ['Home visit', 'Precise estimate', 'Guided go-live'],
+    name: 'Name',
+    phone: 'Phone',
+    email: 'Email',
+    zone: 'Area',
+    type: 'Property type',
+    msg: 'Message (optional)',
+    zones: ['Casablanca', 'Bouznika', 'Témara-Harhoura', 'Rabat'],
+    types: ['Studio', '2 rooms', '3 rooms', '4 rooms +', 'Villa'],
+    send: 'Send request',
+    subject: 'Owner enquiry — Nautila',
+    ok: 'Thank you. Your email app opens with the request pre-filled.',
+  },
+}[lang];
+---
+
+<section class="section contact" id="contact">
+  <div class="container">
+    <div class="ct-band">
+      <svg class="ct-spiral" viewBox="-66 -5 172 110" fill="none" aria-hidden="true">
+        <path
+          pathLength="1"
+          d="M100 0 A100 100 0 0 1 0 100 A61.8 61.8 0 0 1 -61.8 38.2 A38.2 38.2 0 0 1 -23.61 0 A23.61 23.61 0 0 1 0 23.61 A14.59 14.59 0 0 1 -14.59 38.2"
+        ></path>
+      </svg>
+
+      <div class="ct-copy">
+        <p class="kicker" data-fade>{copy.kicker}</p>
+        <h2 data-fade>{copy.title}</h2>
+        <p class="ct-lead" data-fade>{copy.lead}</p>
+        <ul class="ct-points" data-fade>
+          {copy.points.map((p, i) => <li><span class="tnum">{String(i + 1).padStart(2, '0')}</span>{p}</li>)}
+        </ul>
+        <a class="ct-mail" href={`mailto:${EMAIL}`}>{EMAIL}</a>
+      </div>
+
+      <form class="ct-form" data-fade data-contact data-email={EMAIL} data-subject={copy.subject}>
+        <label class="f">
+          <span>{copy.name}</span>
+          <input name="name" autocomplete="name" required />
+        </label>
+        <div class="row">
+          <label class="f">
+            <span>{copy.phone}</span>
+            <input name="phone" type="tel" autocomplete="tel" />
+          </label>
+          <label class="f">
+            <span>{copy.email}</span>
+            <input name="email" type="email" autocomplete="email" required />
+          </label>
+        </div>
+        <div class="row">
+          <label class="f">
+            <span>{copy.zone}</span>
+            <select name="zone">{copy.zones.map((z) => <option>{z}</option>)}</select>
+          </label>
+          <label class="f">
+            <span>{copy.type}</span>
+            <select name="type">{copy.types.map((t, i) => <option selected={i === 1}>{t}</option>)}</select>
+          </label>
+        </div>
+        <label class="f">
+          <span>{copy.msg}</span>
+          <textarea name="message" rows="3"></textarea>
+        </label>
+        <button class="btn btn-light" type="submit">{copy.send} <span class="arrow">→</span></button>
+        <p class="ct-ok" data-ok hidden>{copy.ok}</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-contact]');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+      const fd = new FormData(form);
+      const lines = [...fd.entries()].map(([k, v]) => `${k}: ${v}`).join('\n');
+      const href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(form.dataset.subject || '')}&body=${encodeURIComponent(lines)}`;
+      window.location.href = href;
+      form.querySelector<HTMLElement>('[data-ok]')!.hidden = false;
+    });
+  }
+</script>
+
+<style>
+  .ct-band {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1.05fr;
+    gap: clamp(32px, 6vw, 80px);
+    padding: clamp(36px, 6vw, 80px);
+    border-radius: 28px;
+    background:
+      radial-gradient(60% 70% at 100% 0%, rgba(46, 125, 140, 0.45), transparent 70%),
+      #14333b;
+    color: #f2efe6;
+  }
+
+  .ct-spiral {
+    position: absolute;
+    left: -8%;
+    bottom: -30%;
+    width: min(70%, 720px);
+    stroke: #63a6a0;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    opacity: 0.22;
+    pointer-events: none;
+  }
+
+  .ct-spiral path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: ct-draw 6s var(--ease-out) forwards;
+    animation-timeline: view();
+    animation-range: entry 0% cover 50%;
+  }
+
+  @keyframes ct-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @supports not (animation-timeline: view()) {
+    .ct-spiral path {
+      stroke-dashoffset: 0;
+      animation: none;
+    }
+  }
+
+  .ct-copy {
+    position: relative;
+  }
+
+  .ct-copy .kicker {
+    color: #63a6a0;
+  }
+
+  .ct-copy .kicker::before {
+    background: #63a6a0;
+  }
+
+  .ct-copy h2 {
+    margin-top: 16px;
+    color: #f2efe6;
+    font-weight: 400;
+    font-size: clamp(2.2rem, 4.6vw, 3.6rem);
+  }
+
+  .ct-lead {
+    margin-top: 18px;
+    color: rgba(242, 239, 230, 0.72);
+    max-width: 40ch;
+  }
+
+  .ct-points {
+    display: grid;
+    gap: 12px;
+    margin-top: 30px;
+  }
+
+  .ct-points li {
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+    font-size: 1.02rem;
+  }
+
+  .ct-points span {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #63a6a0;
+  }
+
+  .ct-mail {
+    display: inline-block;
+    margin-top: 32px;
+    font-size: 0.8rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #63a6a0;
+    border-bottom: 1px solid rgba(99, 166, 160, 0.4);
+    padding-bottom: 4px;
+  }
+
+  .ct-form {
+    position: relative;
+    display: grid;
+    gap: 16px;
+    padding: clamp(22px, 3vw, 34px);
+    border-radius: 20px;
+    background: rgba(242, 239, 230, 0.06);
+    border: 1px solid rgba(242, 239, 230, 0.14);
+    backdrop-filter: blur(12px);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .f {
+    display: grid;
+    gap: 7px;
+  }
+
+  .f span {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(242, 239, 230, 0.6);
+  }
+
+  .f input,
+  .f select,
+  .f textarea {
+    font: inherit;
+    font-size: 0.98rem;
+    color: #f2efe6;
+    background: rgba(20, 51, 59, 0.6);
+    border: 1px solid rgba(242, 239, 230, 0.16);
+    border-radius: 10px;
+    padding: 12px 14px;
+    transition: border-color 0.25s, background 0.25s;
+    resize: vertical;
+  }
+
+  .f select option {
+    color: #14333b;
+  }
+
+  .f input:focus,
+  .f select:focus,
+  .f textarea:focus {
+    outline: none;
+    border-color: #63a6a0;
+    background: rgba(20, 51, 59, 0.9);
+  }
+
+  .ct-form .btn {
+    justify-self: start;
+    margin-top: 6px;
+  }
+
+  .ct-ok {
+    font-size: 0.88rem;
+    color: #63a6a0;
+  }
+
+  @media (max-width: 900px) {
+    .ct-band {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

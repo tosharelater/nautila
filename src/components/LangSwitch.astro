@@ -1,0 +1,46 @@
+---
+import { type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+---
+
+<div class="lang-switch" role="group" aria-label="Language / Langue">
+  <a href={base} hreflang="fr" aria-current={lang === 'fr' ? 'true' : undefined} class:list={[{ active: lang === 'fr' }]}>FR</a>
+  <a href={`${base}en/`} hreflang="en" aria-current={lang === 'en' ? 'true' : undefined} class:list={[{ active: lang === 'en' }]}>EN</a>
+</div>
+
+<style>
+  .lang-switch {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px;
+    gap: 2px;
+    border-radius: 999px;
+    background: rgba(242, 239, 230, 0.08);
+    border: 1px solid rgba(242, 239, 230, 0.12);
+  }
+
+  .lang-switch a {
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: rgba(242, 239, 230, 0.6);
+    transition: color 0.25s, background 0.25s;
+  }
+
+  .lang-switch a:hover {
+    color: #f2efe6;
+  }
+
+  .lang-switch a.active {
+    color: #fff;
+    background: var(--brand-grad-deep);
+  }
+</style>

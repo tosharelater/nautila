@@ -1,0 +1,217 @@
+---
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const copy = {
+  fr: {
+    kicker: 'Méthode',
+    title: 'Quatre quarts de tour',
+    lead: 'Comme la spirale, chaque étape s’appuie sur la précédente.',
+    steps: [
+      { t: 'Visite du bien', d: 'Nous visitons votre logement, écoutons vos attentes et vérifions ce que le standard Nautila demande.' },
+      { t: 'Mise au standard', d: 'Linge hôtelier, serrure connectée, photos du bien : le logement rejoint le même standard que tous les autres.' },
+      { t: 'Mise en ligne', d: 'Annonce rédigée, calendrier ouvert, pricing dynamique activé. Les premières réservations arrivent.' },
+      { t: 'Gestion & rapport', d: 'Voyageurs, ménage, maintenance au quotidien. Chaque mois, un rapport clair arrive dans votre boîte.' },
+    ],
+  },
+  en: {
+    kicker: 'Method',
+    title: 'Four quarter turns',
+    lead: 'Like the spiral, each step builds on the one before.',
+    steps: [
+      { t: 'Home visit', d: 'We visit your home, listen to what you expect and check what the Nautila standard requires.' },
+      { t: 'Brought to standard', d: 'Hotel linen, connected lock, photos of the home: it joins the same standard as every other.' },
+      { t: 'Going live', d: 'Listing written, calendar open, dynamic pricing switched on. The first bookings come in.' },
+      { t: 'Management & report', d: 'Guests, cleaning, maintenance, day to day. Every month, a clear report lands in your inbox.' },
+    ],
+  },
+}[lang];
+
+// Four quarter arcs of the logo spiral, largest last so it "grows outward"
+const arcs = [
+  'M0 23.61 A14.59 14.59 0 0 1 -14.59 38.2',
+  'M-23.61 0 A23.61 23.61 0 0 1 0 23.61',
+  'M-61.8 38.2 A38.2 38.2 0 0 1 -23.61 0',
+  'M0 100 A61.8 61.8 0 0 1 -61.8 38.2',
+  'M100 0 A100 100 0 0 1 0 100',
+];
+---
+
+<section class="section process bg-sable" id="process" data-process>
+  <div class="container proc-grid">
+    <div class="proc-sticky">
+      <p class="kicker" data-fade>{copy.kicker}</p>
+      <h2 class="section-title" data-fade>{copy.title}</h2>
+      <p class="section-lead" data-fade>{copy.lead}</p>
+
+      <div class="proc-art" aria-hidden="true">
+        <svg viewBox="-70 -8 176 116" fill="none">
+          <g class="guides">
+            <rect x="0" y="0" width="100" height="100"></rect>
+            <rect x="-61.8" y="38.2" width="61.8" height="61.8"></rect>
+            <rect x="-61.8" y="0" width="38.2" height="38.2"></rect>
+            <rect x="-23.61" y="0" width="23.61" height="23.61"></rect>
+          </g>
+          {arcs.map((d, i) => <path class="arc" data-arc={i} d={d} pathLength="1" />)}
+        </svg>
+        <span class="proc-count tnum" data-proc-count>01</span>
+      </div>
+    </div>
+
+    <ol class="proc-steps">
+      {
+        copy.steps.map((s, i) => (
+          <li class="proc-step" data-proc-step={i}>
+            <span class="ps-num tnum">{String(i + 1).padStart(2, '0')}</span>
+            <div>
+              <h3>{s.t}</h3>
+              <p>{s.d}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-process]');
+  if (root) {
+    const steps = Array.from(root.querySelectorAll<HTMLElement>('[data-proc-step]'));
+    const arcs = Array.from(root.querySelectorAll<SVGPathElement>('[data-arc]'));
+    const count = root.querySelector<HTMLElement>('[data-proc-count]');
+    // arc 0 is the seed; step i reveals arcs 0..i+1
+    const set = (idx: number) => {
+      steps.forEach((s, i) => s.classList.toggle('active', i === idx));
+      arcs.forEach((a, i) => a.classList.toggle('on', i <= idx + 1));
+      if (count) count.textContent = String(idx + 1).padStart(2, '0');
+    };
+    set(0);
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) set(Number((e.target as HTMLElement).dataset.procStep));
+        });
+      },
+      { rootMargin: '-45% 0px -45% 0px' }
+    );
+    steps.forEach((s) => io.observe(s));
+  }
+</script>
+
+<style>
+  .proc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(40px, 8vw, 120px);
+    align-items: start;
+  }
+
+  .proc-sticky {
+    position: sticky;
+    top: calc(var(--nav-h) + 40px);
+  }
+
+  .proc-art {
+    position: relative;
+    margin-top: clamp(28px, 4vw, 48px);
+    max-width: 460px;
+  }
+
+  .proc-art svg {
+    width: 100%;
+    overflow: visible;
+  }
+
+  .guides rect {
+    stroke: rgba(20, 51, 59, 0.14);
+    stroke-width: 0.4;
+  }
+
+  .arc {
+    stroke: #2e7d8c;
+    stroke-width: 3.4;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 1s var(--ease-out);
+  }
+
+  .arc.on {
+    stroke-dashoffset: 0;
+  }
+
+  .proc-count {
+    position: absolute;
+    right: 4%;
+    bottom: 4%;
+    font-size: clamp(3rem, 7vw, 5.4rem);
+    font-weight: 600;
+    line-height: 1;
+    color: rgba(20, 51, 59, 0.1);
+  }
+
+  .proc-steps {
+    display: grid;
+    gap: 0;
+    padding-block: 12vh 30vh;
+  }
+
+  .proc-step {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 18px;
+    padding: 40px 0;
+    min-height: 42vh;
+    align-content: center;
+    border-top: 1px solid rgba(20, 51, 59, 0.12);
+    opacity: 0.3;
+    transition: opacity 0.6s var(--ease-out);
+  }
+
+  .proc-step.active {
+    opacity: 1;
+  }
+
+  .ps-num {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2e7d8c;
+    padding-top: 10px;
+  }
+
+  .proc-step h3 {
+    font-size: clamp(1.6rem, 3vw, 2.3rem);
+    font-weight: 400;
+  }
+
+  .proc-step p {
+    margin-top: 12px;
+    color: var(--ink-500);
+    max-width: 42ch;
+  }
+
+  @media (max-width: 860px) {
+    .proc-grid {
+      grid-template-columns: 1fr;
+    }
+    .proc-sticky {
+      position: relative;
+      top: 0;
+    }
+    .proc-art {
+      max-width: 300px;
+    }
+    .proc-steps {
+      padding-block: 20px 0;
+    }
+    .proc-step {
+      min-height: 0;
+      opacity: 1;
+    }
+  }
+</style>

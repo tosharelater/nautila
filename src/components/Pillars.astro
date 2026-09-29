@@ -1,0 +1,239 @@
+---
+import { type Lang, type UIKey, tr } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const pillars = ([1, 2, 3] as const).map((n) => ({
+  n: `0${n}`,
+  title: tr(lang, `pillars.0${n}.title` as UIKey),
+  text: tr(lang, `pillars.0${n}.text` as UIKey),
+  points: tr<string[]>(lang, `pillars.0${n}.points` as UIKey),
+}));
+---
+
+<section class="pillars-pin" id="pillars" data-h-pin>
+  <div class="pillars-sticky">
+    <div class="pillars-head container">
+      <div>
+        <p class="kicker" data-fade>{tr(lang, 'pillars.kicker')}</p>
+        <h2 class="section-title" data-fade>{tr(lang, 'pillars.title')}</h2>
+      </div>
+      <p class="pillars-hint" data-fade>{tr(lang, 'pillars.hint')}</p>
+    </div>
+
+    <div class="scrub-bar container" aria-hidden="true">
+      <span class="scrub-fill" data-h-progress></span>
+    </div>
+
+    <div class="h-viewport">
+      <div class="h-track" data-h-track>
+        {pillars.map((p) => (
+          <article class="h-card" data-h-card>
+            <span class="h-num">{p.n}</span>
+            <h3 class="h-title">{p.title}</h3>
+            <p class="h-text">{p.text}</p>
+            <ul class="h-points">
+              {p.points.map((pt) => (
+                <li><span class="tick" aria-hidden="true">✓</span>{pt}</li>
+              ))}
+            </ul>
+            <div class="h-glow" aria-hidden="true"></div>
+          </article>
+        ))}
+
+        <article class="h-card h-cta-card" data-h-card>
+          <span class="h-num">✦</span>
+          <h3 class="h-title">{tr(lang, 'showcase.kicker')}</h3>
+          <p class="h-text">{tr(lang, 'showcase.text')}</p>
+          <a class="btn btn-primary" href="#tech" data-nav-link>
+            {lang === 'en' ? 'See the console' : 'Voir la console'} <span class="arrow">→</span>
+          </a>
+          <div class="h-glow" aria-hidden="true"></div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .pillars-pin {
+    position: relative;
+    height: 320vh;
+  }
+
+  .pillars-sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 22px;
+    overflow: hidden;
+    padding-block: calc(var(--nav-h) + 12px) 28px;
+    background:
+      radial-gradient(48% 40% at 12% 80%, rgba(99, 166, 160, 0.18), transparent 70%),
+      radial-gradient(40% 36% at 90% 20%, rgba(46, 125, 140, 0.12), transparent 65%),
+      var(--bg);
+  }
+
+  .pillars-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .pillars-hint {
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-300);
+    max-width: 28ch;
+    text-align: right;
+  }
+
+  .scrub-bar {
+    height: 3px;
+    border-radius: 99px;
+    background: rgba(20, 51, 59, 0.08);
+    overflow: hidden;
+  }
+
+  .scrub-fill {
+    display: block;
+    height: 100%;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    background: var(--brand-grad);
+  }
+
+  .h-viewport {
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  .h-track {
+    display: flex;
+    gap: 28px;
+    padding-inline: max(24px, calc((100vw - var(--container)) / 2));
+    width: max-content;
+    will-change: transform;
+    transform-style: preserve-3d;
+    perspective: 1200px;
+  }
+
+  .h-card {
+    position: relative;
+    flex: 0 0 min(78vw, 420px);
+    min-height: min(58vh, 460px);
+    padding: 40px 36px;
+    border-radius: calc(var(--radius-lg) + 4px);
+    background: #fff;
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    transition: box-shadow 0.35s var(--ease-out);
+    will-change: transform, opacity;
+  }
+
+  .h-card:hover {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .h-num {
+    font-family: var(--font-display);
+    font-size: 3.4rem;
+    font-weight: 700;
+    line-height: 1;
+    background: var(--brand-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .h-title {
+    font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+  }
+
+  .h-text {
+    color: var(--ink-500);
+    font-size: 1rem;
+    flex: 1;
+  }
+
+  .h-points {
+    display: grid;
+    gap: 10px;
+  }
+
+  .h-points li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.94rem;
+    font-weight: 500;
+    color: var(--ink-700);
+  }
+
+  .h-glow {
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    right: -60px;
+    bottom: -70px;
+    background: radial-gradient(circle, rgba(99, 166, 160, 0.35), transparent 70%);
+    pointer-events: none;
+  }
+
+  .h-cta-card {
+    background: linear-gradient(165deg, #14333B 0%, #14333B 55%, #1b424b 100%);
+    color: #F2EFE6;
+    border-color: transparent;
+  }
+
+  .h-cta-card .h-title {
+    color: #F2EFE6;
+  }
+
+  .h-cta-card .h-text {
+    color: rgba(242, 239, 230, 0.72);
+  }
+
+  .h-cta-card .h-num {
+    background: linear-gradient(120deg, #63A6A0, #F2EFE6);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .h-cta-card .btn {
+    margin-top: auto;
+    align-self: flex-start;
+  }
+
+  @media (max-width: 700px) {
+    .pillars-pin {
+      height: 280vh;
+    }
+
+    .h-card {
+      flex-basis: min(86vw, 360px);
+      min-height: 400px;
+      padding: 30px 26px;
+    }
+
+    .pillars-hint {
+      text-align: left;
+    }
+  }
+</style>

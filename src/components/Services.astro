@@ -1,0 +1,190 @@
+---
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const copy = {
+  fr: {
+    kicker: 'Services',
+    title: 'Tout ce qu’un bien demande. Rien de plus.',
+    lead: 'Un seul standard, appliqué à chaque logement. Vous confiez les clés ; nous gérons le reste, et vous le montrons chaque mois.',
+    items: [
+      { icon: 'key', title: 'Check-in digital', text: 'Code d’accès dans l’app, serrure connectée. L’arrivée prend moins d’une minute, à toute heure.' },
+      { icon: 'linen', title: 'Ménage hôtelier', text: 'Linge hôtelier, check-list identique à chaque rotation, le même soin dans chaque logement.' },
+      { icon: 'chart', title: 'Pricing dynamique', text: 'Le prix de la nuit suit la saison, la demande et les événements de la côte.' },
+      { icon: 'tool', title: 'Maintenance', text: 'Petites réparations traitées vite, montant et facture transmis au propriétaire.' },
+      { icon: 'chat', title: 'Relation voyageurs', text: 'Un message suffit, à toute heure. Accueil en français et en anglais.' },
+      { icon: 'report', title: 'Rapport mensuel', text: 'Revenus, occupation, interventions : un document clair, chaque début de mois.', feature: true },
+    ],
+  },
+  en: {
+    kicker: 'Services',
+    title: 'Everything a home needs. Nothing more.',
+    lead: 'One standard, applied to every home. You hand over the keys; we handle the rest, and show you every month.',
+    items: [
+      { icon: 'key', title: 'Digital check-in', text: 'Door code in the app, connected lock. Arrival takes under a minute, at any hour.' },
+      { icon: 'linen', title: 'Hotel-grade cleaning', text: 'Hotel linen, the same checklist at every turnover, the same care in every home.' },
+      { icon: 'chart', title: 'Dynamic pricing', text: 'The nightly rate follows the season, demand and events along the coast.' },
+      { icon: 'tool', title: 'Maintenance', text: 'Small repairs handled fast, with the amount and invoice sent to the owner.' },
+      { icon: 'chat', title: 'Guest relations', text: 'One message away, anytime. Welcome in French and English.' },
+      { icon: 'report', title: 'Monthly report', text: 'Revenue, occupancy, interventions: one clear document at the start of each month.', feature: true },
+    ],
+  },
+}[lang];
+
+const icons: Record<string, string> = {
+  key: '<circle cx="15" cy="24" r="7"/><path d="M22 24h18M34 24v6M40 24v4"/>',
+  linen: '<path d="M8 14h32v8H8zM10 22v14h28V22"/><path d="M16 28h16"/>',
+  chart: '<path d="M8 38h32"/><path d="M10 32l9-9 7 5 12-14"/><circle cx="38" cy="14" r="2"/>',
+  tool: '<path d="M30 8a8 8 0 0 0-7 11L9 33l6 6 14-14a8 8 0 0 0 11-7l-5 3-4-4z"/>',
+  chat: '<path d="M8 12h32v20H22l-8 7v-7H8z"/><path d="M16 22h16"/>',
+  report: '<path d="M12 6h18l8 8v28H12z"/><path d="M30 6v8h8M18 34v-6M24 34v-10M30 34v-4"/>',
+};
+---
+
+<section class="section services" id="services">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="kicker" data-fade>{copy.kicker}</p>
+        <h2 class="section-title" data-fade>{copy.title}</h2>
+      </div>
+      <p class="section-lead" data-fade>{copy.lead}</p>
+    </div>
+
+    <div class="svc-grid">
+      {
+        copy.items.map((it, i) => (
+          <article class:list={['svc', { feature: it.feature }]} data-fade data-tilt style={`transition-delay:${i * 60}ms`}>
+            <svg class="svc-spiral" viewBox="-66 -5 172 110" fill="none" aria-hidden="true">
+              <path
+                pathLength="1"
+                d="M100 0 A100 100 0 0 1 0 100 A61.8 61.8 0 0 1 -61.8 38.2 A38.2 38.2 0 0 1 -23.61 0 A23.61 23.61 0 0 1 0 23.61 A14.59 14.59 0 0 1 -14.59 38.2"
+              />
+            </svg>
+            <span class="svc-num tnum">{String(i + 1).padStart(2, '0')}</span>
+            <svg class="svc-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true" set:html={icons[it.icon]} />
+            <h3>{it.title}</h3>
+            <p>{it.text}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .svc-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-top: clamp(40px, 6vw, 72px);
+  }
+
+  .svc {
+    position: relative;
+    overflow: hidden;
+    padding: 34px 30px 32px;
+    border-radius: 16px;
+    background: #f2efe6;
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.4s var(--ease-out), background 0.4s;
+  }
+
+  .svc.feature {
+    background: #14333b;
+    color: #f2efe6;
+  }
+
+  .svc-num {
+    position: absolute;
+    top: 26px;
+    right: 28px;
+    font-size: 0.8rem;
+    color: #2e7d8c;
+    letter-spacing: 0.1em;
+  }
+
+  .svc-icon {
+    width: 44px;
+    height: 44px;
+    stroke: #2e7d8c;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .feature .svc-icon {
+    stroke: #63a6a0;
+  }
+
+  .svc h3 {
+    margin-top: auto;
+    padding-top: 40px;
+    font-size: 1.45rem;
+    font-weight: 500;
+  }
+
+  .feature h3 {
+    color: #f2efe6;
+  }
+
+  .svc p {
+    margin-top: 10px;
+    color: var(--ink-500);
+    font-size: 0.95rem;
+    max-width: 34ch;
+  }
+
+  .feature p {
+    color: rgba(242, 239, 230, 0.7);
+  }
+
+  .svc-spiral {
+    position: absolute;
+    right: -40px;
+    bottom: -30px;
+    width: 220px;
+    stroke: #2e7d8c;
+    stroke-width: 3;
+    stroke-linecap: round;
+    opacity: 0.18;
+    pointer-events: none;
+  }
+
+  .svc-spiral path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 1.2s var(--ease-out);
+  }
+
+  .svc:hover .svc-spiral path,
+  .feature .svc-spiral path {
+    stroke-dashoffset: 0;
+  }
+
+  .feature .svc-spiral {
+    stroke: #63a6a0;
+    opacity: 0.3;
+  }
+
+  @media (max-width: 960px) {
+    .svc-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .svc-grid {
+      grid-template-columns: 1fr;
+    }
+    .svc {
+      min-height: 0;
+    }
+  }
+</style>

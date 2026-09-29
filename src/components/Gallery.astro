@@ -1,0 +1,226 @@
+---
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+// Replace `src` with real photos in /public/photos — Brand Book p.10:
+// real stays, grazing 5 pm light, linen / light wood / brass. No stock, no HDR.
+const copy = {
+  fr: {
+    kicker: 'Nos biens',
+    title: 'Lumière atlantique, fin de journée',
+    lead: 'Des logements réels, photographiés tels qu’ils sont. Lin, bois clair, laiton.',
+    hint: 'Glissez pour parcourir',
+    items: [
+      { t: 'Harhoura — vue océan', m: '3 pièces · linge hôtelier · serrure connectée', ph: 'photo — séjour, lumière 17 h', w: 'wide' },
+      { t: 'Agdal — Rabat', m: '2 pièces · check-in digital', ph: 'photo — chambre', w: '' },
+      { t: 'Bouznika — terrasse', m: '3 pièces · vue mer', ph: 'photo — terrasse', w: 'tall' },
+      { t: 'Détail matière', m: 'lin, bois clair, laiton', ph: 'photo — détail matière', w: '' },
+      { t: 'Casablanca — Gauthier', m: '2 pièces · centre-ville', ph: 'photo — séjour', w: 'wide' },
+      { t: 'Témara — plage', m: 'studio · 10 min de l’océan', ph: 'photo — cuisine', w: '' },
+    ],
+  },
+  en: {
+    kicker: 'Our homes',
+    title: 'Atlantic light, late afternoon',
+    lead: 'Real homes, photographed as they are. Linen, light wood, brass.',
+    hint: 'Drag to browse',
+    items: [
+      { t: 'Harhoura — ocean view', m: '3 rooms · hotel linen · connected lock', ph: 'photo — living room, 5 pm light', w: 'wide' },
+      { t: 'Agdal — Rabat', m: '2 rooms · digital check-in', ph: 'photo — bedroom', w: '' },
+      { t: 'Bouznika — terrace', m: '3 rooms · sea view', ph: 'photo — terrace', w: 'tall' },
+      { t: 'Material detail', m: 'linen, light wood, brass', ph: 'photo — material detail', w: '' },
+      { t: 'Casablanca — Gauthier', m: '2 rooms · city centre', ph: 'photo — living room', w: 'wide' },
+      { t: 'Témara — beach', m: 'studio · 10 min from the ocean', ph: 'photo — kitchen', w: '' },
+    ],
+  },
+}[lang];
+---
+
+<section class="section gallery" id="gallery">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="kicker" data-fade>{copy.kicker}</p>
+        <h2 class="section-title" data-fade>{copy.title}</h2>
+      </div>
+      <p class="section-lead" data-fade>{copy.lead}</p>
+    </div>
+  </div>
+
+  <div class="gal-track" data-gal tabindex="0" aria-label={copy.kicker}>
+    {
+      copy.items.map((it, i) => (
+        <figure class:list={['gal-item', it.w]} data-fade style={`transition-delay:${i * 70}ms`}>
+          <div class="gal-img ph" data-label={it.ph}>
+            <div class="gal-sun" aria-hidden="true" />
+          </div>
+          <figcaption>
+            <strong>{it.t}</strong>
+            <span>{it.m}</span>
+          </figcaption>
+        </figure>
+      ))
+    }
+  </div>
+
+  <div class="container gal-foot">
+    <span class="gal-hint">{copy.hint}</span>
+    <div class="gal-bar"><span data-gal-bar></span></div>
+  </div>
+</section>
+
+<script>
+  const track = document.querySelector<HTMLElement>('[data-gal]');
+  const bar = document.querySelector<HTMLElement>('[data-gal-bar]');
+  if (track) {
+    const upd = () => {
+      const max = track.scrollWidth - track.clientWidth;
+      if (bar) bar.style.transform = `scaleX(${max > 0 ? 0.15 + 0.85 * (track.scrollLeft / max) : 1})`;
+    };
+    track.addEventListener('scroll', upd, { passive: true });
+    upd();
+
+    // drag to scroll (mouse)
+    let down = false;
+    let sx = 0;
+    let sl = 0;
+    track.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      down = true;
+      sx = e.clientX;
+      sl = track.scrollLeft;
+      track.classList.add('drag');
+    });
+    window.addEventListener('pointermove', (e) => {
+      if (down) track.scrollLeft = sl - (e.clientX - sx);
+    });
+    window.addEventListener('pointerup', () => {
+      down = false;
+      track.classList.remove('drag');
+    });
+
+    // light follows pointer across each frame
+    track.querySelectorAll<HTMLElement>('.gal-img').forEach((img) => {
+      img.addEventListener('pointermove', (e) => {
+        const r = img.getBoundingClientRect();
+        img.style.setProperty('--lx', `${((e.clientX - r.left) / r.width) * 100}%`);
+        img.style.setProperty('--ly', `${((e.clientY - r.top) / r.height) * 100}%`);
+      });
+    });
+  }
+</script>
+
+<style>
+  .gal-track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: auto;
+    gap: 18px;
+    margin-top: clamp(40px, 6vw, 64px);
+    padding-inline: max(24px, calc((100vw - var(--container)) / 2));
+    scroll-padding-inline: max(24px, calc((100vw - var(--container)) / 2));
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    cursor: grab;
+    align-items: end;
+  }
+
+  .gal-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .gal-track.drag {
+    cursor: grabbing;
+    scroll-snap-type: none;
+  }
+
+  .gal-item {
+    scroll-snap-align: start;
+    width: clamp(240px, 26vw, 340px);
+  }
+
+  .gal-item.wide {
+    width: clamp(300px, 40vw, 540px);
+  }
+
+  .gal-img {
+    border-radius: 14px;
+    aspect-ratio: 4 / 5;
+    transition: transform 0.6s var(--ease-out);
+  }
+
+  .wide .gal-img {
+    aspect-ratio: 4 / 3;
+  }
+
+  .tall .gal-img {
+    aspect-ratio: 3 / 4.4;
+  }
+
+  .gal-item:hover .gal-img {
+    transform: translateY(-6px);
+  }
+
+  /* warm grazing-light glow that tracks the pointer */
+  .gal-sun {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(40% 50% at var(--lx, 80%) var(--ly, 20%), rgba(255, 236, 200, 0.55), transparent 70%);
+    mix-blend-mode: soft-light;
+    transition: background-position 0.3s;
+  }
+
+  figcaption {
+    display: grid;
+    gap: 4px;
+    padding-top: 14px;
+  }
+
+  figcaption strong {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.1rem;
+    color: var(--green-900);
+  }
+
+  figcaption span {
+    font-size: 0.85rem;
+    color: var(--ink-500);
+  }
+
+  .gal-foot {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 32px;
+  }
+
+  .gal-hint {
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-300);
+    white-space: nowrap;
+  }
+
+  .gal-bar {
+    flex: 1;
+    height: 2px;
+    background: rgba(20, 51, 59, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .gal-bar span {
+    display: block;
+    height: 100%;
+    background: #2e7d8c;
+    transform-origin: 0 50%;
+    transform: scaleX(0.15);
+  }
+</style>

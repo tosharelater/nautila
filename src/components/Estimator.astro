@@ -1,0 +1,379 @@
+---
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+/**
+ * TODO(nautila): PLACEHOLDER nightly rates in MAD — replace with Nautila's real
+ * figures before going live. Brand Book p.11: never publish invented statistics.
+ */
+const RATES = {
+  casa: [450, 650, 900, 1200],
+  bouz: [400, 600, 850, 1100],
+  tem: [420, 620, 880, 1150],
+  rabat: [430, 630, 870, 1150],
+};
+
+const copy = {
+  fr: {
+    kicker: 'Simulateur',
+    title: 'Combien peut rapporter votre bien ?',
+    lead: 'Une première idée en trois réglages. Le chiffre exact se fixe après la visite.',
+    zone: 'Zone',
+    type: 'Type de bien',
+    occ: 'Taux d’occupation visé',
+    zones: [
+      ['casa', 'Casablanca'],
+      ['bouz', 'Bouznika'],
+      ['tem', 'Témara-Harhoura'],
+      ['rabat', 'Rabat'],
+    ],
+    types: ['Studio', '2 pièces', '3 pièces', '4 pièces +'],
+    out: 'Revenu brut mensuel estimé',
+    nights: 'nuits / mois',
+    rate: 'MAD / nuit en moyenne',
+    note: 'Simulation indicative, hors charges et commission, basée sur des hypothèses à confirmer lors de la visite.',
+    cta: 'Recevoir une estimation précise',
+  },
+  en: {
+    kicker: 'Simulator',
+    title: 'What could your home earn?',
+    lead: 'A first idea in three settings. The exact figure is set after the visit.',
+    zone: 'Area',
+    type: 'Property type',
+    occ: 'Target occupancy',
+    zones: [
+      ['casa', 'Casablanca'],
+      ['bouz', 'Bouznika'],
+      ['tem', 'Témara-Harhoura'],
+      ['rabat', 'Rabat'],
+    ],
+    types: ['Studio', '2 rooms', '3 rooms', '4 rooms +'],
+    out: 'Estimated gross monthly revenue',
+    nights: 'nights / month',
+    rate: 'MAD / night on average',
+    note: 'Indicative simulation, before costs and commission, based on assumptions to be confirmed at the visit.',
+    cta: 'Get a precise estimate',
+  },
+}[lang];
+---
+
+<section class="section estimator" id="estimate" data-est data-rates={JSON.stringify(RATES)} data-locale={lang === 'en' ? 'en-US' : 'fr-FR'}>
+  <div class="container est-grid">
+    <div>
+      <p class="kicker" data-fade>{copy.kicker}</p>
+      <h2 class="section-title" data-fade>{copy.title}</h2>
+      <p class="section-lead" data-fade>{copy.lead}</p>
+
+      <form class="est-form" data-fade onsubmit="return false">
+        <fieldset>
+          <legend>{copy.zone}</legend>
+          <div class="seg">
+            {
+              copy.zones.map(([v, l], i) => (
+                <label>
+                  <input type="radio" name="zone" value={v} checked={i === 0} />
+                  <span>{l}</span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>{copy.type}</legend>
+          <div class="seg">
+            {
+              copy.types.map((l, i) => (
+                <label>
+                  <input type="radio" name="type" value={i} checked={i === 1} />
+                  <span>{l}</span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>
+            {copy.occ} <output class="tnum" data-occ-out>75 %</output>
+          </legend>
+          <input class="range" type="range" name="occ" min="40" max="95" step="1" value="75" />
+        </fieldset>
+      </form>
+    </div>
+
+    <div class="est-out" data-fade>
+      <div class="gauge">
+        <svg viewBox="-66 -5 172 110" fill="none" aria-hidden="true">
+          <path
+            class="g-track"
+            pathLength="1"
+            d="M100 0 A100 100 0 0 1 0 100 A61.8 61.8 0 0 1 -61.8 38.2 A38.2 38.2 0 0 1 -23.61 0 A23.61 23.61 0 0 1 0 23.61 A14.59 14.59 0 0 1 -14.59 38.2"
+          ></path>
+          <path
+            class="g-fill"
+            data-gauge
+            pathLength="1"
+            d="M-14.59 38.2 A14.59 14.59 0 0 0 0 23.61 A23.61 23.61 0 0 0 -23.61 0 A38.2 38.2 0 0 0 -61.8 38.2 A61.8 61.8 0 0 0 0 100 A100 100 0 0 0 100 0"
+          ></path>
+        </svg>
+      </div>
+      <span class="out-l">{copy.out}</span>
+      <p class="out-v tnum" aria-live="polite">
+        <span data-out-v>—</span> <small>MAD</small>
+      </p>
+      <div class="out-meta tnum">
+        <span><b data-out-n>—</b> {copy.nights}</span>
+        <span><b data-out-r>—</b> {copy.rate}</span>
+      </div>
+      <p class="out-note">{copy.note}</p>
+      <a class="btn btn-light" href="#contact" data-nav-link>{copy.cta} <span class="arrow">→</span></a>
+    </div>
+  </div>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-est]');
+  if (root) {
+    const rates = JSON.parse(root.dataset.rates || '{}') as Record<string, number[]>;
+    const locale = root.dataset.locale || 'fr-FR';
+    const form = root.querySelector('form')!;
+    const outV = root.querySelector<HTMLElement>('[data-out-v]')!;
+    const outN = root.querySelector<HTMLElement>('[data-out-n]')!;
+    const outR = root.querySelector<HTMLElement>('[data-out-r]')!;
+    const occOut = root.querySelector<HTMLElement>('[data-occ-out]')!;
+    const gauge = root.querySelector<SVGPathElement>('[data-gauge]')!;
+    const fmt = (n: number) => Math.round(n).toLocaleString(locale);
+    const MAX = 40000;
+    let shown = 0;
+    let raf = 0;
+
+    const compute = () => {
+      const fd = new FormData(form);
+      const zone = String(fd.get('zone'));
+      const type = Number(fd.get('type'));
+      const occ = Number(fd.get('occ')) / 100;
+      const rate = rates[zone]?.[type] ?? 0;
+      const nights = Math.round(30 * occ);
+      const target = nights * rate;
+      occOut.textContent = `${Math.round(occ * 100)} %`;
+      const range = form.querySelector<HTMLInputElement>('input[name="occ"]')!;
+      const pct = ((Number(range.value) - Number(range.min)) / (Number(range.max) - Number(range.min))) * 100;
+      range.style.background = `linear-gradient(90deg, #2E7D8C ${pct}%, #F2EFE6 ${pct}%)`;
+      outN.textContent = String(nights);
+      outR.textContent = fmt(rate);
+      gauge.style.strokeDashoffset = String(1 - Math.min(target / MAX, 1));
+
+      cancelAnimationFrame(raf);
+      const from = shown;
+      const t0 = performance.now();
+      const step = (now: number) => {
+        const k = Math.min((now - t0) / 700, 1);
+        shown = from + (target - from) * (1 - Math.pow(1 - k, 3));
+        outV.textContent = fmt(Math.round(shown / 10) * 10);
+        if (k < 1) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    };
+
+    form.addEventListener('input', compute);
+    compute();
+  }
+</script>
+
+<style>
+  .est-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: clamp(32px, 6vw, 90px);
+    align-items: center;
+  }
+
+  .est-form {
+    display: grid;
+    gap: 28px;
+    margin-top: 40px;
+  }
+
+  fieldset {
+    border: 0;
+    padding: 0;
+    min-width: 0;
+  }
+
+  legend {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+    margin-bottom: 12px;
+  }
+
+  legend output {
+    font-size: 0.95rem;
+    letter-spacing: 0;
+    font-weight: 600;
+    color: #2e7d8c;
+  }
+
+  .seg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .seg label {
+    position: relative;
+  }
+
+  .seg input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    cursor: pointer;
+  }
+
+  .seg span {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(20, 51, 59, 0.16);
+    font-size: 0.92rem;
+    color: var(--ink-700);
+    transition: background 0.25s, color 0.25s, border-color 0.25s;
+  }
+
+  .seg input:checked + span {
+    background: #14333b;
+    border-color: #14333b;
+    color: #f2efe6;
+  }
+
+  .seg input:focus-visible + span {
+    outline: 2px solid #2e7d8c;
+    outline-offset: 2px;
+  }
+
+  .range {
+    width: 100%;
+    appearance: none;
+    height: 4px;
+    border-radius: 4px;
+    background: #f2efe6;
+    accent-color: #2e7d8c;
+  }
+
+  .range::-webkit-slider-thumb {
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #2e7d8c;
+    border: 4px solid #fff;
+    box-shadow: 0 2px 10px rgba(20, 51, 59, 0.3);
+    cursor: pointer;
+  }
+
+  .range::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #2e7d8c;
+    border: 4px solid #fff;
+  }
+
+  .est-out {
+    position: relative;
+    overflow: hidden;
+    border-radius: 22px;
+    background: #14333b;
+    color: #f2efe6;
+    padding: clamp(28px, 4vw, 48px);
+    display: grid;
+    gap: 10px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .gauge {
+    position: absolute;
+    right: -30px;
+    top: -10px;
+    width: 300px;
+    pointer-events: none;
+  }
+
+  .g-track {
+    stroke: rgba(242, 239, 230, 0.08);
+    stroke-width: 5;
+    stroke-linecap: round;
+  }
+
+  .g-fill {
+    stroke: #63a6a0;
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 0.8s var(--ease-out);
+  }
+
+  .out-l {
+    position: relative;
+    margin-top: 120px;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #63a6a0;
+  }
+
+  .out-v {
+    position: relative;
+    font-size: clamp(2.8rem, 6vw, 4.2rem);
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .out-v small {
+    font-size: 1rem;
+    font-weight: 400;
+    color: rgba(242, 239, 230, 0.55);
+  }
+
+  .out-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    font-size: 0.9rem;
+    color: rgba(242, 239, 230, 0.65);
+  }
+
+  .out-meta b {
+    color: #f2efe6;
+    font-weight: 600;
+  }
+
+  .out-note {
+    margin-top: 14px;
+    font-size: 0.8rem;
+    color: rgba(242, 239, 230, 0.5);
+    max-width: 44ch;
+  }
+
+  .est-out .btn {
+    justify-self: start;
+    margin-top: 16px;
+  }
+
+  @media (max-width: 900px) {
+    .est-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

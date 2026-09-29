@@ -1,0 +1,99 @@
+---
+import { type Lang, tr } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const items = tr<string[]>(lang, 'trust.items');
+---
+
+<section class="trust" aria-label={tr(lang, 'trust.title')}>
+  <div class="container">
+    <p class="trust-title" data-fade>{tr(lang, 'trust.title')}</p>
+  </div>
+
+  <div class="marquee" data-fade>
+    <div class="marquee-track" data-marquee>
+      {[0, 1].map(() =>
+        items.map((name) => (
+          <span class="logo-item">
+            <span class="mark" aria-hidden="true">◈</span>
+            {name}
+          </span>
+        ))
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .trust {
+    padding-block: 44px 70px;
+  }
+
+  .trust-title {
+    text-align: center;
+    font-size: 0.85rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-300);
+  }
+
+  .marquee {
+    margin-top: 30px;
+    overflow: hidden;
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+
+  .marquee-track {
+    display: flex;
+    align-items: center;
+    gap: 64px;
+    width: max-content;
+    padding-right: 64px; /* half-gap so the loop seam is invisible */
+    animation: marquee-scroll 30s linear infinite;
+  }
+
+  @keyframes marquee-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+    }
+  }
+
+  .logo-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: 1.12rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--ink-300);
+    white-space: nowrap;
+    transition: color 0.3s;
+  }
+
+  .logo-item:hover {
+    color: var(--ink-700);
+  }
+
+  .mark {
+    font-size: 0.8rem;
+    background: var(--brand-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    opacity: 0.75;
+  }
+</style>

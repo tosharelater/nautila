@@ -1,0 +1,340 @@
+---
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+// Brand Book p.11 & p.13 — tone of voice, shown as the owner WhatsApp thread
+const copy = {
+  fr: {
+    kicker: 'Ton de voix',
+    title: 'L’ingénieur en costume de lin',
+    lead: 'Voici comment nous vous écrivons. Informer d’abord, rassurer toujours, chiffrer ce qui est chiffrable.',
+    rules: [
+      { t: 'Précis.', d: 'Des faits, des dates, des montants — jamais de superlatifs creux.' },
+      { t: 'Calme.', d: 'Phrases courtes. On rassure en montrant que tout est sous contrôle.' },
+      { t: 'Chaleureux, pas familier.', d: 'Prénom du propriétaire, vouvoiement, zéro jargon.' },
+    ],
+    group: 'Nautila × Bennani',
+    members: 'Karim, Yasmine, Nautila Ops',
+    msgs: [
+      { me: false, t: 'Bonjour Karim, votre appartement d’Agdal est reloué : 6 nuits, arrivée vendredi 18 h. Check-in digital déjà envoyé au voyageur. Votre rapport d’octobre arrive lundi — tout est en ordre.', h: '10:42' },
+      { me: true, t: 'Parfait, merci !', h: '10:45' },
+      { me: false, t: 'Petite attention : le mitigeur de la salle de bain a été remplacé hier (240 MAD, facture jointe). Rien d’autre à signaler.', h: '16:08' },
+    ],
+    example: 'Exemple rédactionnel',
+  },
+  en: {
+    kicker: 'Tone of voice',
+    title: 'The engineer in a linen suit',
+    lead: 'This is how we write to you. Inform first, always reassure, put a number on what can be counted.',
+    rules: [
+      { t: 'Precise.', d: 'Facts, dates, amounts — never empty superlatives.' },
+      { t: 'Calm.', d: 'Short sentences. We reassure by showing everything is under control.' },
+      { t: 'Warm, never familiar.', d: 'The owner’s first name, polite form, zero jargon.' },
+    ],
+    group: 'Nautila × Bennani',
+    members: 'Karim, Yasmine, Nautila Ops',
+    msgs: [
+      { me: false, t: 'Hello Karim, your Agdal apartment is booked again: 6 nights, arriving Friday at 6 pm. Digital check-in already sent to the guest. Your October report arrives Monday — everything is in order.', h: '10:42' },
+      { me: true, t: 'Perfect, thank you!', h: '10:45' },
+      { me: false, t: 'Small note: the bathroom mixer tap was replaced yesterday (240 MAD, invoice attached). Nothing else to report.', h: '16:08' },
+    ],
+    example: 'Writing example',
+  },
+}[lang];
+---
+
+<section class="section voice bg-sable" id="voice">
+  <div class="container voice-grid">
+    <div>
+      <p class="kicker" data-fade>{copy.kicker}</p>
+      <h2 class="section-title" data-fade>{copy.title}</h2>
+      <p class="section-lead" data-fade>{copy.lead}</p>
+      <ol class="rules">
+        {
+          copy.rules.map((r, i) => (
+            <li data-fade>
+              <span class="tnum">{String(i + 1).padStart(2, '0')}</span>
+              <p>
+                <strong>{r.t}</strong> {r.d}
+              </p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+
+    <div class="phone-wrap" data-fade>
+      <div class="phone" data-chat>
+        <div class="ph-head">
+          <span class="avatar" aria-hidden="true">
+            <svg viewBox="-66 -5 172 110" fill="none">
+              <path
+                d="M100 0 A100 100 0 0 1 0 100 A61.8 61.8 0 0 1 -61.8 38.2 A38.2 38.2 0 0 1 -23.61 0"
+                stroke="#63A6A0"
+                stroke-width="12"
+                stroke-linecap="round"></path>
+            </svg>
+          </span>
+          <div>
+            <strong>{copy.group}</strong>
+            <span>{copy.members}</span>
+          </div>
+        </div>
+        <div class="ph-body">
+          {
+            copy.msgs.map((m, i) => (
+              <div class:list={['bubble', { me: m.me }]} style={`--d:${i}`}>
+                <p>{m.t}</p>
+                <span class="tnum">{m.h}</span>
+              </div>
+            ))
+          }
+          <div class="typing" aria-hidden="true"><i></i><i></i><i></i></div>
+        </div>
+      </div>
+      <p class="ph-note">{copy.example}</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  const chat = document.querySelector<HTMLElement>('[data-chat]');
+  if (chat) {
+    const bubbles = Array.from(chat.querySelectorAll<HTMLElement>('.bubble'));
+    const typing = chat.querySelector<HTMLElement>('.typing')!;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const play = async () => {
+      const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+      for (const b of bubbles) {
+        if (!b.classList.contains('me') && !reduced) {
+          typing.classList.add('on');
+          await wait(1100);
+          typing.classList.remove('on');
+        }
+        b.classList.add('in');
+        await wait(reduced ? 0 : 700);
+      }
+    };
+    const io = new IntersectionObserver(
+      (en) =>
+        en.forEach((e) => {
+          if (e.isIntersecting) {
+            io.disconnect();
+            play();
+          }
+        }),
+      { threshold: 0.45 }
+    );
+    io.observe(chat);
+  }
+</script>
+
+<style>
+  .voice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(40px, 7vw, 110px);
+    align-items: center;
+  }
+
+  .rules {
+    display: grid;
+    gap: 18px;
+    margin-top: 40px;
+  }
+
+  .rules li {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 8px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(20, 51, 59, 0.12);
+  }
+
+  .rules span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #2e7d8c;
+    padding-top: 2px;
+  }
+
+  .rules p {
+    color: var(--ink-500);
+  }
+
+  .rules strong {
+    color: #14333b;
+    font-weight: 600;
+  }
+
+  .phone-wrap {
+    justify-self: center;
+    width: min(100%, 380px);
+  }
+
+  .phone {
+    position: relative;
+    border-radius: 42px;
+    padding: 12px;
+    background: #14333b;
+    box-shadow:
+      0 0 0 1px rgba(20, 51, 59, 0.2),
+      0 50px 100px -30px rgba(20, 51, 59, 0.55),
+      inset 0 0 0 2px rgba(242, 239, 230, 0.06);
+    transform: rotate(-2deg);
+    transition: transform 0.8s var(--ease-out);
+  }
+
+  .phone-wrap:hover .phone {
+    transform: rotate(0deg) translateY(-6px);
+  }
+
+  .ph-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 16px 14px;
+    color: #f2efe6;
+  }
+
+  .ph-head strong {
+    display: block;
+    font-size: 0.98rem;
+    font-weight: 600;
+  }
+
+  .ph-head span {
+    font-size: 0.76rem;
+    color: rgba(242, 239, 230, 0.55);
+  }
+
+  .avatar {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #0e262c;
+    flex-shrink: 0;
+  }
+
+  .avatar svg {
+    width: 24px;
+  }
+
+  .ph-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 430px;
+    padding: 18px 14px 22px;
+    border-radius: 30px;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(99, 166, 160, 0.12), transparent 50%),
+      #f2efe6;
+  }
+
+  .bubble {
+    align-self: flex-start;
+    max-width: 86%;
+    padding: 11px 14px 8px;
+    border-radius: 16px 16px 16px 4px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(20, 51, 59, 0.08);
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: #14333b;
+    display: none;
+    transform-origin: 0 100%;
+  }
+
+  .bubble.me {
+    align-self: flex-end;
+    border-radius: 16px 16px 4px 16px;
+    background: #2e7d8c;
+    color: #f2efe6;
+    transform-origin: 100% 100%;
+  }
+
+  .bubble.in {
+    display: block;
+    animation: pop 0.45s var(--ease-out);
+  }
+
+  :global(html:not(.js)) .bubble {
+    display: block;
+  }
+
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.97);
+    }
+  }
+
+  .bubble span {
+    display: block;
+    text-align: right;
+    font-size: 0.66rem;
+    opacity: 0.55;
+    margin-top: 2px;
+  }
+
+  .typing {
+    display: none;
+    align-self: flex-start;
+    gap: 4px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: #fff;
+  }
+
+  .typing.on {
+    display: flex;
+  }
+
+  .typing i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #63a6a0;
+    animation: blink 1s infinite ease-in-out;
+  }
+
+  .typing i:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+  .typing i:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 0.3;
+      transform: translateY(0);
+    }
+    50% {
+      opacity: 1;
+      transform: translateY(-3px);
+    }
+  }
+
+  .ph-note {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--ink-300);
+  }
+
+  @media (max-width: 900px) {
+    .voice-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

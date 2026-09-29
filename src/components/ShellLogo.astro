@@ -1,0 +1,24 @@
+---
+// Nautila spiral — quarter-circle arcs, radii r, r/φ, r/φ², r/φ³… (Brand Book, p.04)
+interface Props {
+  size?: number; // rendered height in px
+  color?: string;
+  strokeWidth?: number;
+  uid?: string; // kept for call-site compatibility
+}
+const { size = 40, color = 'currentColor', strokeWidth = 6 } = Astro.props;
+const d =
+  'M100 0 A100 100 0 0 1 0 100 A61.8 61.8 0 0 1 -61.8 38.2 A38.2 38.2 0 0 1 -23.61 0 A23.61 23.61 0 0 1 0 23.61 A14.59 14.59 0 0 1 -14.59 38.2';
+const width = Math.round((size * 172) / 110);
+---
+
+<svg
+  width={width}
+  height={size}
+  viewBox="-66 -5 172 110"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  aria-hidden="true"
+>
+  <path d={d} stroke={color} stroke-width={strokeWidth} stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>

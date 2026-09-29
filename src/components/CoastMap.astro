@@ -1,0 +1,318 @@
+---
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const copy = {
+  fr: {
+    kicker: 'Territoire',
+    title: 'De Casablanca à Rabat, par la côte',
+    lead: 'Quatre zones, une seule équipe, le même standard. Nous restons proches des biens que nous gérons.',
+    ocean: 'Océan Atlantique',
+    zones: [
+      { id: 'casa', n: 'Casablanca', d: 'Appartements en ville, séjours d’affaires et courts séjours toute l’année.' },
+      { id: 'bouz', n: 'Bouznika', d: 'Résidences en bord de mer, forte saison estivale.' },
+      { id: 'tem', n: 'Témara-Harhoura', d: 'Vue océan, plages à quelques minutes, séjours familiaux.' },
+      { id: 'rabat', n: 'Rabat', d: 'Agdal, Hassan, Souissi : la capitale, entre culture et affaires.' },
+    ],
+  },
+  en: {
+    kicker: 'Territory',
+    title: 'From Casablanca to Rabat, along the coast',
+    lead: 'Four areas, one team, the same standard. We stay close to the homes we manage.',
+    ocean: 'Atlantic Ocean',
+    zones: [
+      { id: 'casa', n: 'Casablanca', d: 'City apartments, business trips and short stays all year round.' },
+      { id: 'bouz', n: 'Bouznika', d: 'Seaside residences, a strong summer season.' },
+      { id: 'tem', n: 'Témara-Harhoura', d: 'Ocean views, beaches minutes away, family stays.' },
+      { id: 'rabat', n: 'Rabat', d: 'Agdal, Hassan, Souissi: the capital, between culture and business.' },
+    ],
+  },
+}[lang];
+
+// Stylised projection of lon −7.8…−6.6 / lat 33.4…34.2 onto 1000×600
+const pins: Record<string, { x: number; y: number }> = {
+  casa: { x: 190, y: 405 },
+  bouz: { x: 540, y: 322 },
+  tem: { x: 730, y: 212 },
+  rabat: { x: 815, y: 148 },
+};
+const coast = 'M-20 470 C 80 440, 140 408, 180 392 S 330 350, 420 334 S 540 306, 600 285 S 700 222, 730 196 S 800 140, 830 124 S 930 60, 1020 30';
+const route = `M${pins.casa.x} ${pins.casa.y} C 330 390, 450 350, ${pins.bouz.x} ${pins.bouz.y} S 690 250, ${pins.tem.x} ${pins.tem.y} S 790 170, ${pins.rabat.x} ${pins.rabat.y}`;
+---
+
+<section class="section coast bg-sable" id="zones" data-coast>
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="kicker" data-fade>{copy.kicker}</p>
+        <h2 class="section-title" data-fade>{copy.title}</h2>
+      </div>
+      <p class="section-lead" data-fade>{copy.lead}</p>
+    </div>
+
+    <div class="coast-wrap" data-fade>
+      <svg class="coast-map" viewBox="0 0 1000 600" role="img" aria-label={copy.title}>
+        <defs>
+          <clipPath id="ocean-clip">
+            <path d={`${coast} L1020 -20 L-20 -20 Z`}></path>
+          </clipPath>
+          <linearGradient id="land" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#F2EFE6"></stop>
+            <stop offset="1" stop-color="#FFFFFF"></stop>
+          </linearGradient>
+        </defs>
+
+        <!-- ocean with bathymetric contour lines parallel to the coast -->
+        <rect width="1000" height="600" fill="#14333B"></rect>
+        <g clip-path="url(#ocean-clip)" fill="none" stroke="#63A6A0" stroke-width="1">
+          {
+            Array.from({ length: 14 }, (_, i) => (
+              <path
+                class="contour"
+                d={coast}
+                transform={`translate(${-i * 16} ${-i * 26})`}
+                opacity={0.5 - i * 0.03}
+                style={`animation-delay:${-i * 0.6}s`}
+              />
+            ))
+          }
+        </g>
+        <text class="ocean-label" x="120" y="150">{copy.ocean.toUpperCase()}</text>
+
+        <!-- land -->
+        <path d={`${coast} L1020 620 L-20 620 Z`} fill="url(#land)"></path>
+        <path d={coast} fill="none" stroke="#63A6A0" stroke-width="2"></path>
+
+        <!-- route -->
+        <path class="route-base" d={route} fill="none" stroke="#2E7D8C" stroke-width="1.5" opacity="0.25" stroke-dasharray="4 8"></path>
+        <path class="route" d={route} fill="none" stroke="#2E7D8C" stroke-width="2.5" stroke-linecap="round" pathLength="1"></path>
+
+        {
+          copy.zones.map((z, i) => (
+            <g class="pin" data-pin={z.id} transform={`translate(${pins[z.id].x} ${pins[z.id].y})`} tabindex="0" role="button" aria-label={z.n}>
+              <circle class="pin-pulse" r="10" style={`animation-delay:${i * 0.5}s`} />
+              <circle class="pin-dot" r="7" />
+              <text class="pin-label" x="16" y="30">{z.n}</text>
+            </g>
+          ))
+        }
+      </svg>
+
+      <div class="coast-cards">
+        {
+          copy.zones.map((z, i) => (
+            <button class:list={['zone', { active: i === 0 }]} data-zone={z.id} type="button">
+              <span class="zone-n tnum">{String(i + 1).padStart(2, '0')}</span>
+              <strong>{z.n}</strong>
+              <span class="zone-d">{z.d}</span>
+            </button>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-coast]');
+  if (root) {
+    const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-zone]'));
+    const pins = Array.from(root.querySelectorAll<SVGGElement>('[data-pin]'));
+    const select = (id: string) => {
+      cards.forEach((c) => c.classList.toggle('active', c.dataset.zone === id));
+      pins.forEach((p) => p.classList.toggle('active', p.dataset.pin === id));
+    };
+    select('casa');
+    cards.forEach((c) => {
+      c.addEventListener('click', () => select(c.dataset.zone!));
+      c.addEventListener('mouseenter', () => select(c.dataset.zone!));
+    });
+    pins.forEach((p) => {
+      p.addEventListener('click', () => select(p.dataset.pin!));
+      p.addEventListener('keydown', (e) => (e.key === 'Enter' || e.key === ' ') && select(p.dataset.pin!));
+    });
+
+    const io = new IntersectionObserver(
+      (en) =>
+        en.forEach((e) => {
+          if (e.isIntersecting) {
+            root.classList.add('is-on');
+            io.disconnect();
+          }
+        }),
+      { threshold: 0.3 }
+    );
+    io.observe(root);
+  }
+</script>
+
+<style>
+  .coast-wrap {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: clamp(20px, 3vw, 36px);
+    margin-top: clamp(40px, 6vw, 64px);
+    align-items: stretch;
+  }
+
+  .coast-map {
+    width: 100%;
+    height: auto;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: var(--shadow-md);
+  }
+
+  .contour {
+    animation: swell 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes swell {
+    from {
+      translate: 0 0;
+    }
+    to {
+      translate: -6px -8px;
+    }
+  }
+
+  .ocean-label {
+    font-family: var(--font-display);
+    font-size: 15px;
+    letter-spacing: 0.5em;
+    fill: #63a6a0;
+    opacity: 0.8;
+  }
+
+  .route {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+
+  .is-on .route {
+    transition: stroke-dashoffset 2.6s var(--ease-out) 0.3s;
+    stroke-dashoffset: 0;
+  }
+
+  .pin {
+    cursor: pointer;
+    outline: none;
+  }
+
+  .pin-dot {
+    fill: #fff;
+    stroke: #14333b;
+    stroke-width: 2.5;
+    transition: fill 0.3s, r 0.3s;
+  }
+
+  .pin.active .pin-dot,
+  .pin:hover .pin-dot,
+  .pin:focus-visible .pin-dot {
+    fill: #2e7d8c;
+    stroke: #14333b;
+    r: 10;
+  }
+
+  .pin-pulse {
+    fill: none;
+    stroke: #2e7d8c;
+    stroke-width: 1.5;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pulse 2.6s ease-out infinite;
+  }
+
+  @keyframes pulse {
+    from {
+      transform: scale(0.7);
+      opacity: 0.8;
+    }
+    to {
+      transform: scale(3.2);
+      opacity: 0;
+    }
+  }
+
+  .pin-label {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 500;
+    fill: #14333b;
+    letter-spacing: 0.04em;
+  }
+
+  .coast-cards {
+    display: grid;
+    gap: 10px;
+    align-content: center;
+  }
+
+  .zone {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 2px 12px;
+    text-align: left;
+    padding: 18px 20px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid transparent;
+    transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .zone.active {
+    background: #fff;
+    border-color: rgba(46, 125, 140, 0.3);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .zone-n {
+    grid-row: span 2;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #2e7d8c;
+    padding-top: 4px;
+  }
+
+  .zone strong {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.15rem;
+    color: #14333b;
+  }
+
+  .zone-d {
+    font-size: 0.88rem;
+    color: var(--ink-500);
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.4s var(--ease-out), opacity 0.4s;
+  }
+
+  .zone.active .zone-d {
+    max-height: 80px;
+    opacity: 1;
+  }
+
+  @media (max-width: 900px) {
+    .coast-wrap {
+      grid-template-columns: 1fr;
+    }
+    .zone-d {
+      max-height: none;
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contour,
+    .pin-pulse {
+      animation: none;
+    }
+  }
+</style>

@@ -1,0 +1,406 @@
+---
+import { type Lang, tr } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const steps = [
+  {
+    label: tr(lang, 'manifesto.s1.label'),
+    title: tr(lang, 'manifesto.s1.title'),
+    text: tr(lang, 'manifesto.s1.text'),
+    accent: 'trust',
+    metric: '3',
+    metricLabel: lang === 'en' ? 'pillars' : 'piliers',
+  },
+  {
+    label: tr(lang, 'manifesto.s2.label'),
+    title: tr(lang, 'manifesto.s2.title'),
+    text: tr(lang, 'manifesto.s2.text'),
+    accent: 'revenue',
+    metric: '60–100',
+    metricLabel: lang === 'en' ? 'homes, one standard' : 'biens, un standard',
+  },
+  {
+    label: tr(lang, 'manifesto.s3.label'),
+    title: tr(lang, 'manifesto.s3.title'),
+    text: tr(lang, 'manifesto.s3.text'),
+    accent: 'tech',
+    metric: '4',
+    metricLabel: lang === 'en' ? 'coastal areas' : 'zones côtières',
+  },
+] as const;
+---
+
+<section class="manifesto" id="fundamentals" data-manifesto aria-label={tr(lang, 'manifesto.kicker')}>
+  <div class="pin" data-manifesto-pin>
+    <canvas class="ambient" data-ambient aria-hidden="true"></canvas>
+
+    <div class="pin-top">
+      <p class="kicker" data-fade>{tr(lang, 'manifesto.kicker')}</p>
+      <div class="story-bar" aria-hidden="true">
+        <span class="story-fill" data-manifesto-progress></span>
+      </div>
+    </div>
+
+    <div class="stage">
+      {steps.map((s, i) => (
+        <div
+          class={`step accent-${s.accent}${i === 0 ? ' active' : ''}`}
+          data-step
+          data-step-i={i}
+          aria-hidden={i === 0 ? undefined : 'true'}
+        >
+          <div class={`step-inner ${i % 2 === 0 ? 'side-left' : 'side-right'}`}>
+            <div class="step-copy">
+              <p class="step-label">{s.label}</p>
+              <h3 class="step-title">{s.title}</h3>
+              <p class="step-text">{s.text}</p>
+            </div>
+            <div class="step-visual" data-step-visual aria-hidden="true">
+              <div class="viz-ring"></div>
+              <div class="viz-ring r2"></div>
+              <div class="viz-core">
+                <span class="viz-metric">{s.metric}</span>
+                <span class="viz-label">{s.metricLabel}</span>
+              </div>
+              <div class="viz-nodes">
+                <i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="dots" aria-hidden="true">
+      {steps.map((_s, i) => <span class="dot" data-dot data-dot-i={i}></span>)}
+    </div>
+
+    <p class="hint" aria-hidden="true">{tr(lang, 'manifesto.hint')}</p>
+  </div>
+</section>
+
+<style>
+  .manifesto {
+    position: relative;
+    min-height: 320svh;
+  }
+
+  .pin {
+    position: sticky;
+    top: 0;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    padding-block: 80px 40px;
+  }
+
+  .ambient {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .pin-top,
+  .stage,
+  .dots,
+  .hint {
+    position: relative;
+    z-index: 1;
+  }
+
+  .pin-top {
+    display: grid;
+    justify-items: center;
+    gap: 18px;
+  }
+
+  .story-bar {
+    width: min(220px, 40vw);
+    height: 3px;
+    border-radius: 99px;
+    background: rgba(20, 51, 59, 0.1);
+    overflow: hidden;
+  }
+
+  .story-fill {
+    display: block;
+    height: 100%;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    background: var(--brand-grad);
+  }
+
+  .stage {
+    position: relative;
+    width: min(1180px, 100% - 40px);
+    min-height: 440px;
+    display: grid;
+    place-items: center;
+    margin-top: 18px;
+  }
+
+  .step {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(28px) scale(0.98);
+    transition:
+      opacity 0.55s var(--ease-out),
+      transform 0.55s var(--ease-out),
+      visibility 0.55s;
+  }
+
+  .step-inner {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    align-items: center;
+    gap: clamp(28px, 5vw, 64px);
+  }
+
+  .side-right {
+    direction: rtl;
+  }
+  .side-right > * {
+    direction: ltr;
+  }
+
+  .step-copy {
+    max-width: 520px;
+    display: grid;
+    gap: 14px;
+    text-align: left;
+  }
+
+  .step.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+  }
+
+  .step.leaving {
+    opacity: 0.2;
+    visibility: visible;
+    transform: translateY(-36px) scale(0.97);
+  }
+
+  html:not(.js) .step[data-step-i='0'] {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .step {
+      transition: none;
+    }
+    .js .step[data-step-i='0'] {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+    }
+  }
+
+  .step-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--green-900);
+    opacity: 0.85;
+  }
+
+  .step-title {
+    font-size: clamp(2rem, 4.8vw, 3.6rem);
+    line-height: 1.06;
+  }
+
+  .accent-trust .step-title {
+    color: var(--green-900);
+  }
+
+  .accent-revenue .step-title {
+    background: var(--brand-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .accent-tech .step-title {
+    color: var(--ink-900);
+  }
+
+  .step-text {
+    max-width: 44ch;
+    color: var(--ink-500);
+    font-size: 1.02rem;
+  }
+
+  /* Living visual — Canvas UI energy without wrapping the whole DOM */
+  .step-visual {
+    position: relative;
+    width: min(100%, 360px);
+    aspect-ratio: 1;
+    margin-inline: auto;
+    will-change: transform;
+  }
+
+  .viz-ring {
+    position: absolute;
+    inset: 8%;
+    border-radius: 50%;
+    border: 1.5px solid rgba(46, 125, 140, 0.35);
+    animation: spin 28s linear infinite;
+  }
+
+  .viz-ring.r2 {
+    inset: 18%;
+    border-style: dashed;
+    border-color: rgba(46, 125, 140, 0.28);
+    animation-direction: reverse;
+    animation-duration: 18s;
+  }
+
+  .viz-core {
+    position: absolute;
+    inset: 28%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff 0%, #F2EFE6 45%, #D9E6E3 100%);
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-md), inset 0 0 40px rgba(99, 166, 160, 0.35);
+    display: grid;
+    place-content: center;
+    gap: 4px;
+  }
+
+  .viz-metric {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+    font-weight: 600;
+    white-space: nowrap;
+    line-height: 1;
+    background: var(--brand-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .viz-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+
+  .viz-nodes i {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--brand-grad);
+    box-shadow: 0 0 16px rgba(46, 125, 140, 0.5);
+  }
+
+  .viz-nodes i:nth-child(1) { top: 6%; left: 48%; }
+  .viz-nodes i:nth-child(2) { top: 28%; right: 4%; }
+  .viz-nodes i:nth-child(3) { bottom: 22%; right: 10%; }
+  .viz-nodes i:nth-child(4) { bottom: 6%; left: 42%; }
+  .viz-nodes i:nth-child(5) { bottom: 30%; left: 2%; }
+  .viz-nodes i:nth-child(6) { top: 24%; left: 6%; }
+
+  .accent-revenue .viz-core {
+    background: radial-gradient(circle at 35% 30%, #F2EFE6 0%, #E8E4D6 50%, #D9E6E3 100%);
+  }
+
+  .accent-tech .viz-ring {
+    border-radius: 28%;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .dots {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(20, 51, 59, 0.16);
+    transition: background 0.3s, width 0.3s;
+  }
+
+  .dot.active {
+    width: 26px;
+    background: var(--brand-grad);
+  }
+
+  .hint {
+    margin-top: 16px;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-300);
+  }
+
+  @media (max-width: 900px) {
+    .step-inner {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+
+    .side-right {
+      direction: ltr;
+    }
+
+    .step-copy {
+      max-width: none;
+      text-align: center;
+      justify-items: center;
+    }
+
+    .step-visual {
+      width: min(240px, 70vw);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .viz-ring {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import { createAmbient } from '../scripts/ambient';
+
+  const canvas = document.querySelector('[data-ambient]') as HTMLCanvasElement | null;
+  if (canvas) {
+    try {
+      createAmbient(canvas);
+    } catch {
+      /* decorative */
+    }
+  }
+</script>

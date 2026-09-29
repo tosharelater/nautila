@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import TrustMarquee from '../components/TrustMarquee.astro';
+import Manifesto from '../components/Manifesto.astro';
+import Services from '../components/Services.astro';
+import Process from '../components/Process.astro';
+import Report from '../components/Report.astro';
+import Testimonials from '../components/Testimonials.astro';
+import Gallery from '../components/Gallery.astro';
+import CoastMap from '../components/CoastMap.astro';
+import Estimator from '../components/Estimator.astro';
+import Contact from '../components/Contact.astro';
+import { defaultLang } from '../i18n/ui';
+---
+
+<BaseLayout lang={defaultLang}>
+  <Hero lang={defaultLang} />
+  <TrustMarquee lang={defaultLang} />
+  <Manifesto lang={defaultLang} />
+  <Services lang={defaultLang} />
+  <Process lang={defaultLang} />
+  <Report lang={defaultLang} />
+  <Testimonials lang={defaultLang} />
+  <Gallery lang={defaultLang} />
+  <CoastMap lang={defaultLang} />
+  <Estimator lang={defaultLang} />
+  <Contact lang={defaultLang} />
+</BaseLayout>
