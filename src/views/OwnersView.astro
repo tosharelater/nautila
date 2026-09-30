@@ -1,0 +1,117 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Statement from '../components/Statement.astro';
+import FeatureRows from '../components/FeatureRows.astro';
+import Report from '../components/Report.astro';
+import Testimonials from '../components/Testimonials.astro';
+import Estimator from '../components/Estimator.astro';
+import FAQ from '../components/FAQ.astro';
+import type { Row } from '../data/types';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const c = {
+  fr: {
+    kicker: 'Propriétaires',
+    title: ['Vous confiez les clés.', 'Nous gardons le cap.'],
+    lead: 'Nautila protège votre bien et fait croître vos revenus. Vous gardez la vue d’ensemble, sans la charge du quotidien.',
+    mission:
+      'Protéger les biens de nos propriétaires et faire croître leurs revenus, grâce à une machine opérationnelle pilotée par la technologie.',
+    rows: [
+      {
+        kicker: 'Confiance',
+        title: 'Calme, ordre, solidité',
+        text: 'Le nautile bâtit une coquille pour protéger ce qu’elle abrite. Chaque passage, chaque voyageur, chaque intervention est suivi.',
+        points: ['Un interlocuteur, un groupe WhatsApp dédié', 'Vous êtes informé d’abord', 'Vos dates personnelles respectées'],
+        image: 'keyDoor',
+        alt: 'Main tenant une clé devant une porte',
+      },
+      {
+        kicker: 'Rendement',
+        title: 'Précision, chiffres soignés',
+        text: 'Pricing dynamique, calendrier ouvert, rotations maîtrisées. Les chiffres sont en MAD, alignés et lisibles.',
+        points: ['Pricing selon saison et demande', 'Rapport mensuel détaillé', 'Charges visibles, justifiées'],
+        image: 'loftKitchen',
+        alt: 'Loft avec coin repas et cuisine',
+      },
+      {
+        kicker: 'Technologie',
+        title: 'Géométrie, modernité',
+        text: 'Serrure connectée, check-in digital, outils de suivi : la technologie tient la machine, vous gardez la main.',
+        points: ['Check-in sans remise de clés', 'Suivi des séjours en temps réel', 'Un standard répliqué sur chaque bien'],
+        image: 'phoneDoor',
+        alt: 'Téléphone utilisé pour ouvrir une porte',
+      },
+    ] as Row[],
+    faq: {
+      kicker: 'Propriétaires',
+      title: 'Vos questions, nos réponses',
+      items: [
+        { q: 'Comment démarre-t-on ?', a: 'Par une visite de votre bien. Nous vérifions ce que le standard demande, puis nous vous remettons une estimation claire.' },
+        { q: 'Quelle est votre rémunération ?', a: 'Elle dépend du bien et de la zone. Elle vous est présentée clairement après la visite, avant tout engagement.' },
+        { q: 'Qui paie les réparations ?', a: 'Le propriétaire, après information. Chaque intervention est annoncée avec son montant et sa facture.' },
+        { q: 'Puis-je arrêter ?', a: 'Oui, selon les conditions prévues au contrat, que nous vous présentons avant signature.' },
+        { q: 'Dans quelles zones êtes-vous présents ?', a: 'Casablanca, Bouznika, Rabat et Témara-Harhoura.' },
+      ],
+    },
+  },
+  en: {
+    kicker: 'Owners',
+    title: ['You hand over the keys.', 'We keep the course.'],
+    lead: 'Nautila protects your home and grows your income. You keep the big picture, without the day-to-day load.',
+    mission: 'To protect our owners’ homes and grow their income, through an operating machine driven by technology.',
+    rows: [
+      {
+        kicker: 'Trust',
+        title: 'Calm, order, solidity',
+        text: 'The nautilus builds a shell to protect what it shelters. Every visit, every guest, every intervention is tracked.',
+        points: ['One contact, one dedicated WhatsApp group', 'You hear about it first', 'Your personal dates respected'],
+        image: 'keyDoor',
+        alt: 'A hand holding a key to a door',
+      },
+      {
+        kicker: 'Yield',
+        title: 'Precision, careful figures',
+        text: 'Dynamic pricing, open calendar, controlled turnovers. Figures in MAD, aligned and readable.',
+        points: ['Pricing by season and demand', 'Detailed monthly report', 'Costs visible and justified'],
+        image: 'loftKitchen',
+        alt: 'Loft with dining area and kitchen',
+      },
+      {
+        kicker: 'Technology',
+        title: 'Geometry, modernity',
+        text: 'Connected lock, digital check-in, tracking tools: technology runs the machine, you stay in control.',
+        points: ['Check-in without key handover', 'Stays tracked in real time', 'One standard replicated in every home'],
+        image: 'phoneDoor',
+        alt: 'A phone used to open a door',
+      },
+    ] as Row[],
+    faq: {
+      kicker: 'Owners',
+      title: 'Your questions, our answers',
+      items: [
+        { q: 'How do we start?', a: 'With a visit of your home. We check what the standard requires, then give you a clear estimate.' },
+        { q: 'How are you paid?', a: 'It depends on the home and the area. It is presented clearly after the visit, before any commitment.' },
+        { q: 'Who pays for repairs?', a: 'The owner, after being informed. Every intervention comes with its amount and invoice.' },
+        { q: 'Can I stop?', a: 'Yes, under the terms of the contract, which we present before signature.' },
+        { q: 'Which areas do you cover?', a: 'Casablanca, Bouznika, Rabat and Témara-Harhoura.' },
+      ],
+    },
+  },
+}[lang];
+---
+
+<BaseLayout lang={lang} page="owners" description={c.lead}>
+  <PageHero lang={lang} page="owners" kicker={c.kicker} title={c.title} lead={c.lead} image="keyDoor" />
+  <Statement kicker="Mission" quote={c.mission} image="sunsetOcean" sign="Nautila" />
+  <FeatureRows rows={c.rows} />
+  <Report lang={lang} />
+  <Testimonials lang={lang} />
+  <Estimator lang={lang} />
+  <FAQ kicker={c.faq.kicker} title={c.faq.title} items={c.faq.items} tone="sable" />
+</BaseLayout>

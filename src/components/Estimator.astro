@@ -1,5 +1,6 @@
 ---
 import type { Lang } from '../i18n/ui';
+import { href } from '../i18n/routes';
 
 interface Props {
   lang: Lang;
@@ -131,7 +132,7 @@ const copy = {
         <span><b data-out-r>—</b> {copy.rate}</span>
       </div>
       <p class="out-note">{copy.note}</p>
-      <a class="btn btn-light" href="#contact" data-nav-link>{copy.cta} <span class="arrow">→</span></a>
+      <a class="btn btn-light" href={href(lang, 'contact')}>{copy.cta} <span class="arrow">→</span></a>
     </div>
   </div>
 </section>

@@ -9,7 +9,22 @@ const q = <T extends Element = Element>(sel: string, scope: ParentNode = documen
 const qa = <T extends Element = HTMLElement>(sel: string, scope: ParentNode = document) =>
   Array.from(scope.querySelectorAll<T>(sel));
 
+import Lenis from 'lenis';
+
 const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+/* ------------------------------------------------------------------ */
+/* Smooth scroll (Lenis) — native scroll position, eased wheel input   */
+/* ------------------------------------------------------------------ */
+export const lenis = prefersReduced ? null : new Lenis({ duration: 1.15, smoothWheel: true, wheelMultiplier: 0.95 });
+(window as any).__lenis = lenis;
+const lockScroll = (on: boolean) => (on ? lenis?.stop() : lenis?.start());
+window.addEventListener('nautila:menu', (e) => lockScroll((e as CustomEvent).detail));
+if (document.documentElement.classList.contains('splash-lock')) {
+  lockScroll(true);
+  window.addEventListener('nautila:splash-done', () => lockScroll(false), { once: true });
+}
 
 /* Shared pointer (normalized -0.5…0.5) for parallax / shaders */
 export const pointer = { x: 0, y: 0, sx: 0, sy: 0 };
@@ -32,13 +47,20 @@ function lerp(a: number, b: number, t: number) {
 const progressBar = q<HTMLElement>('[data-progress-bar]');
 const nav = q('[data-nav]');
 
+let lastY = window.scrollY;
 function onScrollChrome() {
+  const y = window.scrollY;
   const max = document.documentElement.scrollHeight - window.innerHeight;
   if (progressBar) {
-    const p = max > 0 ? Math.min(window.scrollY / max, 1) : 0;
+    const p = max > 0 ? Math.min(y / max, 1) : 0;
     progressBar.style.transform = `scaleX(${p})`;
   }
-  if (nav) nav.classList.toggle('scrolled', window.scrollY > 60);
+  if (nav) nav.classList.toggle('scrolled', y > 60);
+  // hide the nav while reading down, bring it back on the way up
+  if (Math.abs(y - lastY) > 6) {
+    document.documentElement.classList.toggle('nav-hide', y > lastY && y > window.innerHeight * 0.8);
+    lastY = y;
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -246,20 +268,94 @@ if (chart && 'IntersectionObserver' in window) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Smooth anchors                                                      */
+/* Smooth anchors (any same-page #hash link)                           */
 /* ------------------------------------------------------------------ */
-qa('[data-nav-link]').forEach((link) => {
+qa<HTMLAnchorElement>('a[href^="#"]').forEach((link) => {
   link.addEventListener('click', (e) => {
-    const href = link.getAttribute('href') || '';
-    if (!href.startsWith('#')) return;
-    const target = q(href);
-    if (!target) return;
+    const hash = link.getAttribute('href') || '';
     e.preventDefault();
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
-    history.replaceState(null, '', href);
+    const target = hash.length > 1 ? q<HTMLElement>(hash) : null;
+    if (lenis) lenis.scrollTo(target ?? 0, { offset: 0, duration: 1.6 });
+    else if (target) target.scrollIntoView();
+    else window.scrollTo(0, 0);
+    if (target) history.replaceState(null, '', hash);
   });
 });
+
+/* ------------------------------------------------------------------ */
+/* Custom cursor + magnetic buttons (desktop pointers only)            */
+/* ------------------------------------------------------------------ */
+const cursor = q<HTMLElement>('[data-cursor]');
+const cur = { x: -100, y: -100, sx: -100, sy: -100 };
+if (cursor && finePointer && !prefersReduced) {
+  document.documentElement.classList.add('has-cursor');
+  window.addEventListener('pointermove', (e) => {
+    cur.x = e.clientX;
+    cur.y = e.clientY;
+  });
+  document.addEventListener('pointerover', (e) => {
+    const el = (e.target as HTMLElement).closest('a, button, [role="button"], input, select, textarea, label, .gal-track');
+    cursor.classList.toggle('is-link', !!el && !el.matches('input, textarea, select, .gal-track'));
+    cursor.classList.toggle('is-drag', !!el && el.matches('.gal-track'));
+  });
+  document.addEventListener('pointerdown', () => cursor.classList.add('is-down'));
+  document.addEventListener('pointerup', () => cursor.classList.remove('is-down'));
+  document.addEventListener('mouseleave', () => cursor.classList.add('is-out'));
+  document.addEventListener('mouseenter', () => cursor.classList.remove('is-out'));
+
+  qa<HTMLElement>('[data-magnetic], .btn').forEach((el) => {
+    el.addEventListener('pointermove', (e) => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left - r.width / 2) * 0.28;
+      const y = (e.clientY - r.top - r.height / 2) * 0.35;
+      el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    });
+    el.addEventListener('pointerleave', () => (el.style.transform = ''));
+  });
+}
+
+function updateCursor() {
+  if (!cursor || !finePointer) return;
+  cur.sx = lerp(cur.sx, cur.x, 0.2);
+  cur.sy = lerp(cur.sy, cur.y, 0.2);
+  cursor.style.transform = `translate3d(${cur.sx}px, ${cur.sy}px, 0)`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Image parallax + curtain reveals                                    */
+/* ------------------------------------------------------------------ */
+const pImgs = qa<HTMLElement>('[data-pimg]');
+function updateImgParallax() {
+  if (prefersReduced) return;
+  const vh = window.innerHeight;
+  pImgs.forEach((img) => {
+    const box = img.parentElement!.getBoundingClientRect();
+    if (box.bottom < -100 || box.top > vh + 100) return;
+    const c = (box.top + box.height / 2 - vh / 2) / vh; // -1…1
+    const amt = parseFloat(img.dataset.pimg || '12');
+    img.style.transform = `translate3d(0, ${c * -amt}%, 0) scale(${1 + amt / 50})`;
+  });
+}
+
+const revealEls = qa<HTMLElement>('[data-curtain], [data-stagger]');
+if (revealEls.length && 'IntersectionObserver' in window) {
+  const io = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((en) => {
+        if (en.isIntersecting) {
+          en.target.classList.add('is-in');
+          io.unobserve(en.target);
+        }
+      }),
+    { rootMargin: '0px 0px -12% 0px' }
+  );
+  revealEls.forEach((el) => {
+    if (el.hasAttribute('data-stagger')) {
+      Array.from(el.children).forEach((c, i) => (c as HTMLElement).style.setProperty('--si', String(i)));
+    }
+    io.observe(el);
+  });
+}
 
 /* ------------------------------------------------------------------ */
 /* Spiral scroll indicator                                             */
@@ -307,7 +403,8 @@ function updateScrub() {
 /* ------------------------------------------------------------------ */
 /* Main rAF loop — smooth pointer + scroll-driven scenes               */
 /* ------------------------------------------------------------------ */
-function frame() {
+function frame(time: number) {
+  lenis?.raf(time);
   pointer.sx = lerp(pointer.sx, pointer.x, 0.08);
   pointer.sy = lerp(pointer.sy, pointer.y, 0.08);
 
@@ -320,6 +417,8 @@ function frame() {
   updateParallax();
   updateSpiral();
   updateScrub();
+  updateImgParallax();
+  updateCursor();
 
   requestAnimationFrame(frame);
 }

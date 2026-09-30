@@ -1,0 +1,267 @@
+---
+import type { Lang } from '../i18n/ui';
+import { type ImgKey, img } from '../data/media';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+type L = { z: string; t: string; rooms: string; tags: string[]; a: ImgKey; b: ImgKey };
+
+// Illustrative selection — replace with Nautila's real homes and photos.
+const data: Record<Lang, { kicker: string; title: string; lead: string; all: string; note: string; items: L[] }> = {
+  fr: {
+    kicker: 'Sélection',
+    title: 'Des logements, un seul standard',
+    lead: 'Filtrez par zone. Chaque bien suit la même check-list, du linge à la serrure connectée.',
+    all: 'Toutes',
+    note: 'Sélection et photos d’illustration',
+    items: [
+      { z: 'Témara-Harhoura', t: 'Harhoura — vue océan', rooms: '3 pièces · 6 voyageurs', tags: ['Vue mer', 'Terrasse'], a: 'oceanLiving', b: 'windowOcean' },
+      { z: 'Rabat', t: 'Agdal — lumière du sud', rooms: '2 pièces · 4 voyageurs', tags: ['Check-in digital', 'Centre'], a: 'sunBedroom', b: 'bedLinen' },
+      { z: 'Bouznika', t: 'Bouznika — terrasse', rooms: '3 pièces · 6 voyageurs', tags: ['Plage à pied', 'Parking'], a: 'windowOcean', b: 'coastFlowers' },
+      { z: 'Casablanca', t: 'Gauthier — loft', rooms: '2 pièces · 4 voyageurs', tags: ['Centre-ville', 'Fibre'], a: 'woodLiving', b: 'loftKitchen' },
+      { z: 'Casablanca', t: 'Anfa — calme', rooms: '1 pièce · 2 voyageurs', tags: ['Séjours affaires'], a: 'chairWindow', b: 'pillows' },
+      { z: 'Rabat', t: 'Hassan — atelier', rooms: '2 pièces · 3 voyageurs', tags: ['Lumière', 'Plantes'], a: 'bigWindow', b: 'olive' },
+      { z: 'Témara-Harhoura', t: 'Témara — plage', rooms: 'Studio · 2 voyageurs', tags: ['10 min de l’océan'], a: 'kitchenWood', b: 'towels' },
+      { z: 'Bouznika', t: 'Bouznika — famille', rooms: '4 pièces · 8 voyageurs', tags: ['Jardin', 'Famille'], a: 'sofa', b: 'kitchenIsland' },
+    ],
+  },
+  en: {
+    kicker: 'Selection',
+    title: 'Many homes, one standard',
+    lead: 'Filter by area. Every home follows the same checklist, from linen to connected lock.',
+    all: 'All',
+    note: 'Illustrative selection and photos',
+    items: [
+      { z: 'Témara-Harhoura', t: 'Harhoura — ocean view', rooms: '3 rooms · 6 guests', tags: ['Sea view', 'Terrace'], a: 'oceanLiving', b: 'windowOcean' },
+      { z: 'Rabat', t: 'Agdal — southern light', rooms: '2 rooms · 4 guests', tags: ['Digital check-in', 'Central'], a: 'sunBedroom', b: 'bedLinen' },
+      { z: 'Bouznika', t: 'Bouznika — terrace', rooms: '3 rooms · 6 guests', tags: ['Walk to beach', 'Parking'], a: 'windowOcean', b: 'coastFlowers' },
+      { z: 'Casablanca', t: 'Gauthier — loft', rooms: '2 rooms · 4 guests', tags: ['City centre', 'Fibre'], a: 'woodLiving', b: 'loftKitchen' },
+      { z: 'Casablanca', t: 'Anfa — quiet', rooms: '1 room · 2 guests', tags: ['Business stays'], a: 'chairWindow', b: 'pillows' },
+      { z: 'Rabat', t: 'Hassan — studio loft', rooms: '2 rooms · 3 guests', tags: ['Light', 'Plants'], a: 'bigWindow', b: 'olive' },
+      { z: 'Témara-Harhoura', t: 'Témara — beach', rooms: 'Studio · 2 guests', tags: ['10 min from the ocean'], a: 'kitchenWood', b: 'towels' },
+      { z: 'Bouznika', t: 'Bouznika — family', rooms: '4 rooms · 8 guests', tags: ['Garden', 'Family'], a: 'sofa', b: 'kitchenIsland' },
+    ],
+  },
+};
+const copy = data[lang];
+const zones = ['Casablanca', 'Bouznika', 'Rabat', 'Témara-Harhoura'];
+---
+
+<section class="section listings" data-listings>
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="kicker" data-fade>{copy.kicker}</p>
+        <h2 class="section-title">{copy.title}</h2>
+      </div>
+      <p class="section-lead" data-fade>{copy.lead}</p>
+    </div>
+
+    <div class="chips" role="group" aria-label="Zones" data-fade>
+      <button type="button" class="chip on" data-z="*">{copy.all} <span class="tnum">{copy.items.length}</span></button>
+      {
+        zones.map((z) => (
+          <button type="button" class="chip" data-z={z}>
+            {z} <span class="tnum">{copy.items.filter((i) => i.z === z).length}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="l-grid" data-stagger>
+      {
+        copy.items.map((it) => (
+          <article class="card" data-zone={it.z} data-tilt>
+            <div class="card-media">
+              <img class="ca" src={img(it.a, 800)} alt={it.t} loading="lazy" decoding="async" />
+              <img class="cb" src={img(it.b, 800)} alt="" loading="lazy" decoding="async" />
+              <span class="card-zone">{it.z}</span>
+            </div>
+            <div class="card-body">
+              <h3>{it.t}</h3>
+              <p class="tnum">{it.rooms}</p>
+              <div class="card-tags">
+                {it.tags.map((tg) => (
+                  <span>{tg}</span>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+    <p class="l-note">{copy.note}</p>
+  </div>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-listings]');
+  if (root) {
+    const chips = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-z]'));
+    const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-zone]'));
+    chips.forEach((c) =>
+      c.addEventListener('click', () => {
+        const z = c.dataset.z!;
+        chips.forEach((x) => x.classList.toggle('on', x === c));
+        cards.forEach((card, i) => {
+          const show = z === '*' || card.dataset.zone === z;
+          card.classList.add('swap');
+          setTimeout(() => {
+            card.hidden = !show;
+            requestAnimationFrame(() => card.classList.remove('swap'));
+          }, 260 + i * 10);
+        });
+      })
+    );
+  }
+</script>
+
+<style>
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 40px;
+  }
+
+  .chip {
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(20, 51, 59, 0.16);
+    font-size: 0.92rem;
+    color: var(--ink-700);
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+  }
+
+  .chip span {
+    font-size: 0.75rem;
+    opacity: 0.6;
+  }
+
+  .chip.on {
+    background: #14333b;
+    border-color: #14333b;
+    color: #f2efe6;
+  }
+
+  .l-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 22px 18px;
+    margin-top: 34px;
+  }
+
+  .card {
+    transition: opacity 0.26s, transform 0.4s var(--ease-out);
+  }
+
+  .card.swap {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+
+  .card-media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #e8e2d3;
+  }
+
+  .card-media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.7s ease, transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .cb {
+    opacity: 0;
+    transform: scale(1.12);
+  }
+
+  .card:hover .cb {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .card:hover .ca {
+    transform: scale(1.08);
+  }
+
+  .card-zone {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    background: rgba(242, 239, 230, 0.9);
+    color: #14333b;
+    backdrop-filter: blur(6px);
+  }
+
+  .card-body {
+    padding-top: 14px;
+  }
+
+  .card-body h3 {
+    font-weight: 500;
+    font-size: 1.15rem;
+  }
+
+  .card-body p {
+    margin-top: 4px;
+    font-size: 0.86rem;
+    color: var(--ink-500);
+  }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .card-tags span {
+    font-size: 0.72rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #f2efe6;
+    color: var(--ink-700);
+  }
+
+  .l-note {
+    margin-top: 30px;
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--ink-300);
+  }
+
+  @media (max-width: 1060px) {
+    .l-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .l-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 460px) {
+    .l-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

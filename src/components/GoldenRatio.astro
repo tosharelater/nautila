@@ -1,0 +1,269 @@
+---
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const copy = {
+  fr: {
+    kicker: 'Construction',
+    steps: [
+      { t: 'Un rectangle d’or', d: 'Ses côtés suivent le nombre d’or : φ = 1,618. La grille de chaque page Nautila part de lui.' },
+      { t: 'Des carrés qui se répètent', d: 'Retirez un carré, il reste un rectangle d’or plus petit. À l’infini, à toutes les échelles.' },
+      { t: 'Une spirale au compas', d: 'Un quart de cercle par carré : r, r/φ, r/φ², r/φ³… La coquille du nautile.' },
+      { t: 'Un logo', d: 'Le même dessin devient notre signature — le standard que nous répétons sur chaque logement.' },
+    ],
+  },
+  en: {
+    kicker: 'Construction',
+    steps: [
+      { t: 'A golden rectangle', d: 'Its sides follow the golden ratio: φ = 1.618. Every Nautila page grid starts from it.' },
+      { t: 'Squares that repeat', d: 'Remove a square and a smaller golden rectangle remains. Forever, at every scale.' },
+      { t: 'A compass-drawn spiral', d: 'One quarter circle per square: r, r/φ, r/φ², r/φ³… The nautilus shell.' },
+      { t: 'A logo', d: 'The same drawing becomes our signature — the standard we repeat in every home.' },
+    ],
+  },
+}[lang];
+
+const squares = [
+  [0, 0, 100],
+  [-61.8, 38.2, 61.8],
+  [-61.8, 0, 38.2],
+  [-23.61, 0, 23.61],
+  [-14.59, 23.61, 14.59],
+  [-5.57, 23.61, 9.02],
+];
+const arcs = [
+  'M100 0 A100 100 0 0 1 0 100',
+  'M0 100 A61.8 61.8 0 0 1 -61.8 38.2',
+  'M-61.8 38.2 A38.2 38.2 0 0 1 -23.61 0',
+  'M-23.61 0 A23.61 23.61 0 0 1 0 23.61',
+  'M0 23.61 A14.59 14.59 0 0 1 -14.59 38.2',
+];
+---
+
+<section class="gr" data-gr>
+  <div class="gr-stage">
+    <div class="container gr-grid">
+      <div class="gr-copy">
+        <p class="kicker">{copy.kicker}</p>
+        <div class="gr-steps">
+          {
+            copy.steps.map((s, i) => (
+              <div class="gr-step" data-gr-step={i}>
+                <span class="tnum">{String(i + 1).padStart(2, '0')} / 04</span>
+                <h2>{s.t}</h2>
+                <p>{s.d}</p>
+              </div>
+            ))
+          }
+        </div>
+        <div class="gr-bar"><span data-gr-bar></span></div>
+      </div>
+
+      <div class="gr-art" aria-hidden="true">
+        <svg viewBox="-72 -14 184 140" fill="none">
+          <rect class="gr-rect" x="-61.8" y="0" width="161.8" height="100" pathLength="1" data-gr-rect></rect>
+          <g class="gr-squares">{squares.map(([x, y, w], i) => <rect x={x} y={y} width={w} height={w} pathLength="1" data-gr-sq={i} />)}</g>
+          <g class="gr-arcs">{arcs.map((d, i) => <path d={d} pathLength="1" data-gr-arc={i} />)}</g>
+          <g class="gr-labels">
+            <text x="19" y="112" data-gr-lab>r</text>
+            <text x="-31" y="112" data-gr-lab>r/φ</text>
+            <text x="-68" y="21" data-gr-lab>r/φ²</text>
+            <text x="-14" y="-4" data-gr-lab>r/φ³</text>
+          </g>
+          <text class="gr-ratio" x="19" y="-4" data-gr-ratio>{lang === 'en' ? '1 : 1.618' : '1 : 1,618'}</text>
+          <text class="gr-word" x="19" y="128" text-anchor="middle" data-gr-word>NAUTILA</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-gr]');
+  if (root) {
+    const $$ = <T extends Element>(s: string) => Array.from(root.querySelectorAll<T>(s));
+    const rect = root.querySelector<SVGRectElement>('[data-gr-rect]')!;
+    const sqs = $$<SVGRectElement>('[data-gr-sq]');
+    const arcs = $$<SVGPathElement>('[data-gr-arc]');
+    const labs = $$<SVGTextElement>('[data-gr-lab]');
+    const ratio = root.querySelector<SVGTextElement>('[data-gr-ratio]')!;
+    const word = root.querySelector<SVGTextElement>('[data-gr-word]')!;
+    const steps = $$<HTMLElement>('[data-gr-step]');
+    const bar = root.querySelector<HTMLElement>('[data-gr-bar]')!;
+    const clamp = (v: number) => Math.min(1, Math.max(0, v));
+    const seg = (p: number, a: number, b: number) => clamp((p - a) / (b - a));
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const apply = () => {
+      const r = root.getBoundingClientRect();
+      const p = reduced ? 1 : clamp(-r.top / Math.max(1, root.offsetHeight - innerHeight));
+      rect.style.strokeDashoffset = String(1 - seg(p, 0.02, 0.18));
+      ratio.style.opacity = String(seg(p, 0.1, 0.18) * (1 - seg(p, 0.3, 0.38)));
+      sqs.forEach((s, i) => (s.style.strokeDashoffset = String(1 - seg(p, 0.2 + i * 0.05, 0.28 + i * 0.05))));
+      arcs.forEach((a, i) => (a.style.strokeDashoffset = String(1 - seg(p, 0.46 + i * 0.06, 0.54 + i * 0.06))));
+      labs.forEach((l, i) => (l.style.opacity = String(seg(p, 0.5 + i * 0.06, 0.56 + i * 0.06) * (1 - seg(p, 0.8, 0.86)))));
+      const fin = seg(p, 0.8, 0.95);
+      root.style.setProperty('--guides', String(1 - fin * 0.85));
+      root.style.setProperty('--thick', String(1 + fin * 2.2));
+      word.style.opacity = String(fin);
+      const idx = p < 0.2 ? 0 : p < 0.44 ? 1 : p < 0.8 ? 2 : 3;
+      steps.forEach((s, i) => s.classList.toggle('on', i === idx));
+      bar.style.transform = `scaleX(${p})`;
+    };
+    addEventListener('scroll', apply, { passive: true });
+    addEventListener('resize', apply);
+    apply();
+  }
+</script>
+
+<style>
+  .gr {
+    position: relative;
+    height: 320vh;
+    background: #14333b;
+    color: #f2efe6;
+    --guides: 1;
+    --thick: 1;
+  }
+
+  .gr-stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    display: grid;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .gr-grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.3fr;
+    gap: clamp(30px, 6vw, 90px);
+    align-items: center;
+  }
+
+  .gr-copy .kicker {
+    color: #63a6a0;
+  }
+
+  .gr-copy .kicker::before {
+    background: #63a6a0;
+  }
+
+  .gr-steps {
+    position: relative;
+    height: 240px;
+    margin-top: 26px;
+  }
+
+  .gr-step {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s var(--ease-out), transform 0.7s var(--ease-out);
+  }
+
+  .gr-step.on {
+    opacity: 1;
+    transform: none;
+  }
+
+  .gr-step span {
+    font-size: 0.78rem;
+    color: #63a6a0;
+    letter-spacing: 0.1em;
+  }
+
+  .gr-step h2 {
+    margin-top: 12px;
+    color: #f2efe6;
+    font-weight: 400;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+  }
+
+  .gr-step p {
+    margin-top: 16px;
+    color: rgba(242, 239, 230, 0.7);
+    max-width: 40ch;
+  }
+
+  .gr-bar {
+    height: 1px;
+    background: rgba(242, 239, 230, 0.12);
+    max-width: 320px;
+  }
+
+  .gr-bar span {
+    display: block;
+    height: 100%;
+    background: #63a6a0;
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+  }
+
+  .gr-art svg {
+    width: 100%;
+    overflow: visible;
+  }
+
+  .gr-rect,
+  .gr-squares rect {
+    stroke: rgba(242, 239, 230, calc(0.35 * var(--guides)));
+    stroke-width: 0.4;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+
+  .gr-arcs path {
+    stroke: #63a6a0;
+    stroke-width: calc(1.6px * var(--thick));
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    filter: drop-shadow(0 0 3px rgba(99, 166, 160, 0.5));
+  }
+
+  .gr-labels text,
+  .gr-ratio {
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 5px;
+    fill: #63a6a0;
+    opacity: 0;
+  }
+
+  .gr-ratio {
+    font-size: 6px;
+    fill: #f2efe6;
+    text-anchor: middle;
+  }
+
+  .gr-word {
+    font-family: var(--font-display);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.42em;
+    fill: #f2efe6;
+    opacity: 0;
+  }
+
+  @media (max-width: 860px) {
+    .gr-grid {
+      grid-template-columns: 1fr;
+    }
+    .gr-art {
+      order: -1;
+      max-width: 420px;
+      margin-inline: auto;
+      width: 100%;
+    }
+    .gr-steps {
+      height: 190px;
+    }
+  }
+</style>

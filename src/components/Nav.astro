@@ -1,40 +1,84 @@
 ---
 import { type Lang, t } from '../i18n/ui';
+import { type PageKey, href, LABELS, NAV_PAGES } from '../i18n/routes';
+import { img } from '../data/media';
 import ShellLogo from './ShellLogo.astro';
 import LangSwitch from './LangSwitch.astro';
 
 interface Props {
   lang: Lang;
+  page: PageKey;
 }
-const { lang } = Astro.props;
-const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const { lang, page } = Astro.props;
 
-const links = [
-  { href: '#services', label: lang === 'en' ? 'Services' : 'Services' },
-  { href: '#process', label: lang === 'en' ? 'Method' : 'Méthode' },
-  { href: '#report', label: lang === 'en' ? 'Report' : 'Rapport' },
-  { href: '#zones', label: lang === 'en' ? 'Areas' : 'Zones' },
-  { href: '#estimate', label: lang === 'en' ? 'Simulator' : 'Simulateur' },
-];
+const menuPages: PageKey[] = ['home', ...NAV_PAGES, 'contact'];
 ---
 
 <header class="nav" data-nav>
   <div class="nav-inner">
-    <a class="brand" href={lang === 'en' ? `${base}en/` : base} aria-label="Nautila — home">
+    <a class="brand" href={href(lang, 'home')} aria-label="Nautila — home">
       <ShellLogo size={28} color="#2E7D8C" />
       <span class="word">Nautila</span>
     </a>
 
     <nav class="nav-links" aria-label="Primary">
-      {links.map((l) => <a href={l.href} data-nav-link>{l.label}</a>)}
+      {
+        NAV_PAGES.map((p) => (
+          <a href={href(lang, p)} aria-current={p === page ? 'page' : undefined} class:list={{ active: p === page }}>
+            {LABELS[p][lang]}
+          </a>
+        ))
+      }
     </nav>
 
     <div class="nav-actions">
-      <LangSwitch lang={lang} />
-      <a class="btn btn-primary nav-cta" href="#contact" data-nav-link>{t(lang, 'nav.cta')}</a>
+      <LangSwitch lang={lang} page={page} />
+      <a class="btn btn-primary nav-cta" href={page === 'home' ? '#contact' : href(lang, 'contact')} data-nav-link data-magnetic>
+        {t(lang, 'nav.cta')}
+      </a>
+      <button class="burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu" data-burger>
+        <span></span><span></span>
+      </button>
     </div>
   </div>
 </header>
+
+<div class="menu" id="menu" data-menu aria-hidden="true">
+  <div class="menu-bg" style={`--img:url(${img('sunsetOcean', 1400)})`}></div>
+  <svg class="menu-spiral" viewBox="-66 -5 172 110" fill="none" aria-hidden="true">
+    <path
+      pathLength="1"
+      d="M100 0 A100 100 0 0 1 0 100 A61.8 61.8 0 0 1 -61.8 38.2 A38.2 38.2 0 0 1 -23.61 0 A23.61 23.61 0 0 1 0 23.61 A14.59 14.59 0 0 1 -14.59 38.2"
+    ></path>
+  </svg>
+  <nav class="menu-links" aria-label="Menu">
+    {
+      menuPages.map((p, i) => (
+        <a href={href(lang, p)} style={`--i:${i}`} class:list={{ active: p === page }}>
+          <span class="mi tnum">{String(i + 1).padStart(2, '0')}</span>
+          <span class="ml">{LABELS[p][lang]}</span>
+        </a>
+      ))
+    }
+  </nav>
+  <p class="menu-foot">Casablanca · Bouznika · Rabat · Témara-Harhoura</p>
+</div>
+
+<script>
+  const burger = document.querySelector<HTMLButtonElement>('[data-burger]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+  if (burger && menu) {
+    const set = (open: boolean) => {
+      document.documentElement.classList.toggle('menu-open', open);
+      burger.setAttribute('aria-expanded', String(open));
+      menu.setAttribute('aria-hidden', String(!open));
+      window.dispatchEvent(new CustomEvent('nautila:menu', { detail: open }));
+    };
+    burger.addEventListener('click', () => set(!document.documentElement.classList.contains('menu-open')));
+    menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => set(false)));
+    window.addEventListener('keydown', (e) => e.key === 'Escape' && set(false));
+  }
+</script>
 
 <style>
   .nav {
@@ -42,10 +86,20 @@ const links = [
     top: 14px;
     left: 0;
     right: 0;
-    z-index: 50;
+    z-index: 70;
     display: flex;
     justify-content: center;
     padding-inline: 16px;
+    view-transition-name: site-nav;
+    transition: transform 0.5s var(--ease-out);
+  }
+
+  :global(html.nav-hide) .nav {
+    transform: translateY(-120%);
+  }
+
+  :global(html.menu-open) .nav {
+    transform: none;
   }
 
   .nav-inner {
@@ -59,14 +113,15 @@ const links = [
     border-radius: 999px;
     background: rgba(20, 51, 59, 0.55);
     border: 1px solid rgba(242, 239, 230, 0.12);
-  backdrop-filter: blur(14px) saturate(1.3);
-  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+    backdrop-filter: blur(14px) saturate(1.3);
+    -webkit-backdrop-filter: blur(14px) saturate(1.3);
     box-shadow: var(--shadow-sm);
     transition: background 0.4s, box-shadow 0.4s;
   }
 
-  .nav.scrolled .nav-inner {
-    background: rgba(20, 51, 59, 0.88);
+  .nav:global(.scrolled) .nav-inner,
+  :global(html.menu-open) .nav-inner {
+    background: rgba(20, 51, 59, 0.9);
     box-shadow: 0 10px 40px rgba(20, 51, 59, 0.25);
   }
 
@@ -86,19 +141,13 @@ const links = [
     color: #f2efe6;
   }
 
-  .word .dot {
-    background: var(--brand-grad);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
   .nav-links {
     display: flex;
     gap: 2px;
   }
 
   .nav-links a {
+    position: relative;
     padding: 9px 15px;
     border-radius: 999px;
     font-size: 0.92rem;
@@ -107,9 +156,30 @@ const links = [
     transition: background 0.25s, color 0.25s;
   }
 
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 4px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #63a6a0;
+    transform: translateX(-50%) scale(0);
+    transition: transform 0.3s var(--ease-out);
+  }
+
+  .nav-links a:hover,
+  .nav-links a.active {
+    color: #f2efe6;
+  }
+
   .nav-links a:hover {
     background: rgba(242, 239, 230, 0.08);
-    color: #f2efe6;
+  }
+
+  .nav-links a.active::after {
+    transform: translateX(-50%) scale(1);
   }
 
   .nav-actions {
@@ -123,9 +193,150 @@ const links = [
     font-size: 0.88rem;
   }
 
-  @media (max-width: 900px) {
+  .burger {
+    display: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(242, 239, 230, 0.08);
+    position: relative;
+  }
+
+  .burger span {
+    position: absolute;
+    left: 13px;
+    right: 13px;
+    height: 1.6px;
+    background: #f2efe6;
+    border-radius: 2px;
+    transition: transform 0.45s var(--ease-out), top 0.45s var(--ease-out);
+  }
+
+  .burger span:first-child {
+    top: 17px;
+  }
+  .burger span:last-child {
+    top: 25px;
+  }
+
+  :global(html.menu-open) .burger span:first-child {
+    top: 21px;
+    transform: rotate(45deg);
+  }
+  :global(html.menu-open) .burger span:last-child {
+    top: 21px;
+    transform: rotate(-45deg);
+  }
+
+  /* ---------- full-screen menu ---------- */
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: 65;
+    display: grid;
+    align-content: center;
+    padding: 110px 28px 40px;
+    background: #14333b;
+    color: #f2efe6;
+    clip-path: circle(0% at calc(100% - 44px) 44px);
+    visibility: hidden;
+    transition: clip-path 0.8s cubic-bezier(0.7, 0, 0.2, 1), visibility 0.8s;
+  }
+
+  :global(html.menu-open) .menu {
+    clip-path: circle(150% at calc(100% - 44px) 44px);
+    visibility: visible;
+  }
+
+  .menu-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(20, 51, 59, 0.92), rgba(20, 51, 59, 0.75)),
+      var(--img) center / cover;
+    opacity: 0.9;
+  }
+
+  .menu-spiral {
+    position: absolute;
+    right: -20%;
+    bottom: -12%;
+    width: 110%;
+    max-width: 760px;
+    stroke: #63a6a0;
+    stroke-width: 1.5;
+    opacity: 0.25;
+  }
+
+  .menu-spiral path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 1.6s var(--ease-out) 0.2s;
+  }
+
+  :global(html.menu-open) .menu-spiral path {
+    stroke-dashoffset: 0;
+  }
+
+  .menu-links {
+    position: relative;
+    display: grid;
+    gap: 4px;
+  }
+
+  .menu-links a {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(242, 239, 230, 0.1);
+    opacity: 0;
+    transform: translateY(30px);
+    transition:
+      opacity 0.5s var(--ease-out),
+      transform 0.6s var(--ease-out);
+  }
+
+  :global(html.menu-open) .menu-links a {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(0.25s + var(--i) * 0.06s);
+  }
+
+  .mi {
+    font-size: 0.8rem;
+    color: #63a6a0;
+  }
+
+  .ml {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 9vw, 3.4rem);
+    line-height: 1.1;
+  }
+
+  .menu-links a.active .ml {
+    color: #63a6a0;
+  }
+
+  .menu-foot {
+    position: relative;
+    margin-top: 40px;
+    font-size: 0.7rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(242, 239, 230, 0.5);
+  }
+
+  :global(html.menu-open) {
+    overflow: hidden;
+  }
+
+  @media (max-width: 960px) {
     .nav-links {
       display: none;
+    }
+    .burger {
+      display: block;
     }
   }
 

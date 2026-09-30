@@ -1,0 +1,194 @@
+---
+import type { Lang } from '../i18n/ui';
+import { type PageKey, href } from '../i18n/routes';
+import { type ImgKey, img } from '../data/media';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const copy = {
+  fr: {
+    kicker: 'Découvrir',
+    title: 'Quatre portes pour entrer chez Nautila',
+    items: [
+      { p: 'services', t: 'Services', d: 'Check-in, ménage, pricing, maintenance : le détail du standard.', i: 'bedLinen' },
+      { p: 'owners', t: 'Propriétaires', d: 'Ce que vous confiez, ce que vous recevez, chaque mois.', i: 'keyDoor' },
+      { p: 'homes', t: 'Nos biens', d: 'Une sélection de logements sur la côte atlantique.', i: 'oceanLiving' },
+      { p: 'about', t: 'À propos', d: 'Un nom, trois sens, une géométrie : le nombre d’or.', i: 'sunsetOcean' },
+    ],
+    more: 'Explorer',
+  },
+  en: {
+    kicker: 'Discover',
+    title: 'Four doors into Nautila',
+    items: [
+      { p: 'services', t: 'Services', d: 'Check-in, cleaning, pricing, maintenance: the standard in detail.', i: 'bedLinen' },
+      { p: 'owners', t: 'Owners', d: 'What you entrust, what you receive, every month.', i: 'keyDoor' },
+      { p: 'homes', t: 'Our homes', d: 'A selection of homes along the Atlantic coast.', i: 'oceanLiving' },
+      { p: 'about', t: 'About', d: 'One name, three meanings, one geometry: the golden ratio.', i: 'sunsetOcean' },
+    ],
+    more: 'Explore',
+  },
+}[lang] as { kicker: string; title: string; more: string; items: { p: PageKey; t: string; d: string; i: ImgKey }[] };
+---
+
+<section class="section teasers bg-petrole">
+  <div class="container">
+    <p class="kicker" data-fade>{copy.kicker}</p>
+    <h2 class="section-title">{copy.title}</h2>
+
+    <div class="tz-grid" data-stagger>
+      {
+        copy.items.map((it, i) => (
+          <a class="tz" href={href(lang, it.p)}>
+            <span class="tz-img">
+              <img src={img(it.i, 900)} alt="" loading="lazy" decoding="async" />
+            </span>
+            <span class="tz-shade" />
+            <span class="tz-n tnum">{String(i + 1).padStart(2, '0')}</span>
+            <span class="tz-body">
+              <strong>{it.t}</strong>
+              <span class="tz-d">{it.d}</span>
+              <span class="tz-more">
+                {copy.more} <span class="arrow">→</span>
+              </span>
+            </span>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .tz-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: clamp(40px, 6vw, 70px);
+  }
+
+  .tz {
+    position: relative;
+    display: block;
+    aspect-ratio: 3 / 4.4;
+    border-radius: 18px;
+    overflow: hidden;
+    isolation: isolate;
+    color: #f2efe6;
+  }
+
+  .tz:nth-child(even) {
+    margin-top: 60px;
+  }
+
+  .tz-img {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+  }
+
+  .tz-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.06);
+    transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.8s;
+    filter: saturate(0.8);
+  }
+
+  .tz:hover .tz-img img {
+    transform: scale(1.16);
+    filter: saturate(1.05);
+  }
+
+  .tz-shade {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(180deg, rgba(20, 51, 59, 0.15) 30%, rgba(20, 51, 59, 0.92) 100%);
+    transition: background 0.6s;
+  }
+
+  .tz:hover .tz-shade {
+    background: linear-gradient(180deg, rgba(46, 125, 140, 0.25) 0%, rgba(20, 51, 59, 0.95) 100%);
+  }
+
+  .tz-n {
+    position: absolute;
+    top: 18px;
+    left: 20px;
+    font-size: 0.8rem;
+    color: #63a6a0;
+  }
+
+  .tz-body {
+    position: absolute;
+    left: 22px;
+    right: 22px;
+    bottom: 22px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .tz-body strong {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+  }
+
+  .tz-d {
+    font-size: 0.9rem;
+    color: rgba(242, 239, 230, 0.75);
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.6s var(--ease-out), opacity 0.5s;
+  }
+
+  .tz:hover .tz-d,
+  .tz:focus-visible .tz-d {
+    max-height: 90px;
+    opacity: 1;
+  }
+
+  .tz-more {
+    font-size: 0.78rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #63a6a0;
+  }
+
+  .tz:hover .arrow {
+    display: inline-block;
+    transform: translateX(6px);
+  }
+
+  .arrow {
+    transition: transform 0.3s var(--ease-out);
+  }
+
+  @media (max-width: 960px) {
+    .tz-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .tz-d {
+      max-height: none;
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .tz:nth-child(even) {
+      margin-top: 0;
+    }
+    .tz {
+      aspect-ratio: 4 / 3.6;
+    }
+    .tz-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

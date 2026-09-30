@@ -1,0 +1,80 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Manifesto from '../components/Manifesto.astro';
+import Statement from '../components/Statement.astro';
+import GoldenRatio from '../components/GoldenRatio.astro';
+import BigMarquee from '../components/BigMarquee.astro';
+import FeatureRows from '../components/FeatureRows.astro';
+import type { Row } from '../data/types';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const c = {
+  fr: {
+    kicker: 'À propos',
+    title: ['Un nom,', 'trois sens.'],
+    lead: 'Nautila vient du nautile, la coquille marine construite en spirale d’or. Tout ce que la marque raconte tient dans cette géométrie.',
+    mission:
+      'Protéger les biens de nos propriétaires et faire croître leurs revenus, grâce à une machine opérationnelle pilotée par la technologie.',
+    rows: [
+      {
+        kicker: 'Voix',
+        title: 'L’ingénieur en costume de lin',
+        text: 'Précis, calme, chaleureux sans être familier. Des faits, des dates, des montants — jamais de superlatifs creux.',
+        points: ['Informer d’abord', 'Rassurer toujours', 'Chiffrer ce qui est chiffrable'],
+        image: 'foldedCloth',
+        alt: 'Linge plié sur une table en bois',
+      },
+      {
+        kicker: 'Matière',
+        title: 'Lumière atlantique, fin de journée',
+        text: 'Nos logements parlent de lin, de bois clair et de laiton. Pas de folklore : la côte atlantique, telle qu’elle est.',
+        points: ['Lumière rasante de 17 h', 'Matières naturelles', 'Beaucoup de blanc et de sable'],
+        image: 'olive',
+        alt: 'Olivier en pot dans un séjour',
+      },
+    ] as Row[],
+  },
+  en: {
+    kicker: 'About',
+    title: ['One name,', 'three meanings.'],
+    lead: 'Nautila comes from the nautilus, the sea shell built on a golden spiral. Everything the brand says fits in that geometry.',
+    mission: 'To protect our owners’ homes and grow their income, through an operating machine driven by technology.',
+    rows: [
+      {
+        kicker: 'Voice',
+        title: 'The engineer in a linen suit',
+        text: 'Precise, calm, warm but never familiar. Facts, dates, amounts — never empty superlatives.',
+        points: ['Inform first', 'Always reassure', 'Put a number on what can be counted'],
+        image: 'foldedCloth',
+        alt: 'Folded linen on a wooden table',
+      },
+      {
+        kicker: 'Material',
+        title: 'Atlantic light, late afternoon',
+        text: 'Our homes speak of linen, light wood and brass. No folklore: the Atlantic coast, as it is.',
+        points: ['Grazing 5 pm light', 'Natural materials', 'Plenty of white and sand'],
+        image: 'olive',
+        alt: 'Potted olive tree in a living room',
+      },
+    ] as Row[],
+  },
+}[lang];
+---
+
+<BaseLayout lang={lang} page="about" description={c.lead}>
+  <PageHero lang={lang} page="about" kicker={c.kicker} title={c.title} lead={c.lead} image="sunsetOcean" />
+  <Manifesto lang={lang} />
+  <GoldenRatio lang={lang} />
+  <Statement kicker="Mission" quote={c.mission} image="waves" sign="Nautila" />
+  <FeatureRows rows={c.rows} />
+  <BigMarquee
+    top={lang === 'fr' ? ['Précis', 'Calme', 'Chaleureux'] : ['Precise', 'Calm', 'Warm']}
+    bottom={lang === 'fr' ? ['Confiance', 'Rendement', 'Technologie'] : ['Trust', 'Yield', 'Technology']}
+  />
+</BaseLayout>

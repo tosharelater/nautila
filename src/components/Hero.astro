@@ -279,39 +279,39 @@ const copy = {
       smy += (my - smy) * 0.06;
 
       // 1. fly through the window
-      const fa = ss(0.02, 0.46, p);
+      const fa = ss(0, 0.42, p);
       const F = 1 + Math.pow(fa, 2.4) * 16;
       facade.style.transform = `translate3d(${-smx * 14 * (1 - fa)}px, ${-smy * 10 * (1 - fa)}px, 0) scale(${F})`;
-      facade.style.opacity = String(1 - ss(0.4, 0.47, p));
-      facade.style.visibility = p > 0.48 ? 'hidden' : 'visible';
+      facade.style.opacity = String(1 - ss(0.36, 0.43, p));
+      facade.style.visibility = p > 0.44 ? 'hidden' : 'visible';
       sun.style.transform = `translateY(${p * 160}px)`;
 
       // 2. room: approach the wall, then push into the artwork
       const Z0 = innerWidth < 700 ? 0.62 : 0.5;
-      const z1 = Z0 + (1 - Z0) * Math.pow(ss(0.02, 0.47, p), 1.6);
-      const push = ss(0.56, 0.9, p);
+      const z1 = Z0 + (1 - Z0) * Math.pow(ss(0, 0.43, p), 1.6);
+      const push = ss(0.48, 0.82, p);
       const Z = z1 * Math.exp(Math.log(1 / K) * push);
       room.style.transform = `translate3d(${smx * 18 * (1 - push)}px, ${smy * 12 * (1 - push)}px, 0) scale(${Z})`;
 
       // 3. hero3d composition: centred artwork → hero layout
-      state.v = ss(0.84, 0.97, p);
+      state.v = ss(0.74, 0.9, p);
 
       // talking copy
-      const out = ss(0.03, 0.2, p);
+      const out = ss(0.02, 0.16, p);
       tag.style.opacity = String(1 - out);
       a.style.transform = `translate3d(${-out * 40}vw, 0, 0)`;
       b.style.transform = `translate3d(${out * 40}vw, 0, 0)`;
       a.style.opacity = b.style.opacity = String(1 - out * 0.9);
-      hint.style.opacity = String(1 - ss(0.01, 0.06, p));
-      const inn = ss(0.44, 0.5, p) * (1 - ss(0.6, 0.66, p));
+      hint.style.opacity = String(1 - ss(0.005, 0.05, p));
+      const inn = ss(0.4, 0.46, p) * (1 - ss(0.52, 0.58, p));
       inside.style.opacity = String(inn);
       inside.style.transform = `translate3d(-50%, ${(1 - inn) * 14}px, 0)`;
-      mark.style.opacity = String(1 - ss(0.74, 0.84, p));
-      const fin = ss(0.88, 0.98, p);
+      mark.style.opacity = String(1 - ss(0.66, 0.76, p));
+      const fin = ss(0.8, 0.94, p);
       copyEl.style.opacity = String(fin);
       copyEl.style.transform = `translate3d(0, ${(1 - fin) * 30}px, 0)`;
       copyEl.style.pointerEvents = fin > 0.6 ? 'auto' : 'none';
-      card.style.opacity = String(ss(0.92, 1, p));
+      card.style.opacity = String(ss(0.86, 0.98, p));
     };
 
     let raf = 0;
@@ -348,7 +348,7 @@ const copy = {
 <style>
   .hx {
     position: relative;
-    height: 460vh;
+    height: 280vh;
     background: #14333b;
   }
 

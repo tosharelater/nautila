@@ -1,62 +1,148 @@
 ---
-import { type Lang, t, tr } from '../i18n/ui';
+import { type Lang, t } from '../i18n/ui';
+import { type PageKey, href, LABELS, NAV_PAGES } from '../i18n/routes';
 import ShellLogo from './ShellLogo.astro';
 
 interface Props {
   lang: Lang;
+  page: PageKey;
 }
-const { lang } = Astro.props;
-const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const { lang, page } = Astro.props;
 
-const productLinks = tr<string[]>(lang, 'footer.links.product');
-const companyLinks = tr<string[]>(lang, 'footer.links.company');
+const copy = {
+  fr: {
+    cta: 'Parlons de votre bien',
+    ctaSub: 'Une visite, une estimation claire, puis le même standard que tous nos logements.',
+    btn: 'Nous contacter',
+    pages: 'Pages',
+    zones: 'Territoire',
+    contact: 'Contact',
+  },
+  en: {
+    cta: 'Let’s talk about your home',
+    ctaSub: 'A visit, a clear estimate, then the same standard as every home we manage.',
+    btn: 'Contact us',
+    pages: 'Pages',
+    zones: 'Territory',
+    contact: 'Contact',
+  },
+}[lang];
+
+const zones = ['Casablanca', 'Bouznika', 'Rabat', 'Témara-Harhoura'];
+const year = 2026;
 ---
 
-<footer class="footer">
-  <div class="container footer-grid">
-    <div class="footer-brand">
-      <a class="brand" href={lang === 'en' ? `${base}en/` : base} aria-label="Nautila — home">
-        <ShellLogo size={26} color="#2E7D8C" />
+<footer class="footer" data-footer>
+  {
+    page !== 'contact' && page !== 'home' && (
+      <div class="container f-cta">
+        <h2 class="f-cta-title" data-fade>
+          {copy.cta}
+        </h2>
+        <div class="f-cta-side" data-fade>
+          <p>{copy.ctaSub}</p>
+          <a class="btn btn-primary" href={href(lang, 'contact')} data-magnetic>
+            {copy.btn} <span class="arrow">→</span>
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  <div class="container f-grid">
+    <div class="f-brand">
+      <a class="brand" href={href(lang, 'home')} aria-label="Nautila — home">
+        <ShellLogo size={26} color="#63A6A0" />
         <span>Nautila</span>
       </a>
       <p class="tagline">{t(lang, 'footer.tagline')}</p>
     </div>
 
-    <nav class="footer-col" aria-label={t(lang, 'footer.columns.product')}>
-      <h3>{t(lang, 'footer.columns.product')}</h3>
-      {productLinks.map((l, i) => <a href={["#services", "#report", "#process"][i] ?? "#services"}>{l}</a>)}
+    <nav class="f-col" aria-label={copy.pages}>
+      <h3>{copy.pages}</h3>
+      {(['home', ...NAV_PAGES] as PageKey[]).map((p) => <a href={href(lang, p)}>{LABELS[p][lang]}</a>)}
     </nav>
 
-    <nav class="footer-col" aria-label={t(lang, 'footer.columns.company')}>
-      <h3>{t(lang, 'footer.columns.company')}</h3>
-      {companyLinks.map((l) => <a href="#zones">{l}</a>)}
+    <nav class="f-col" aria-label={copy.zones}>
+      <h3>{copy.zones}</h3>
+      {zones.map((z) => <a href={href(lang, 'homes')}>{z}</a>)}
     </nav>
 
-    <div class="footer-col">
-      <h3>Nautila</h3>
-      <a href="#top">{t(lang, 'footer.legal')}</a>
-      <a href="#top">{t(lang, 'footer.privacy')}</a>
+    <div class="f-col">
+      <h3>{copy.contact}</h3>
+      <a href="mailto:hello@nautila.ma">hello@nautila.ma</a>
+      <a href={href(lang, 'contact')}>{LABELS.contact[lang]}</a>
+      <a href={href(lang, 'contact')}>{t(lang, 'footer.legal')}</a>
     </div>
   </div>
 
-  <div class="container footer-bottom">
-    <p>© {new Date().getFullYear()} Nautila — {t(lang, 'footer.rights')}</p>
-    <p class="footer-woah">Crafted with <span class="grad-text">confiance · revenus · technologie</span></p>
+  <div class="f-giant" aria-hidden="true">
+    <span data-giant>NAUTILA</span>
+  </div>
+
+  <div class="container f-bottom">
+    <span>© {year} Nautila. {t(lang, 'footer.rights')}</span>
+    <span>{lang === 'en' ? 'Built on the golden ratio — φ = 1.618' : 'Construit sur le nombre d’or — φ = 1,618'}</span>
   </div>
 </footer>
 
+<script>
+  const giant = document.querySelector<HTMLElement>('[data-giant]');
+  const footer = document.querySelector<HTMLElement>('[data-footer]');
+  if (giant && footer && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const upd = () => {
+      const r = footer.getBoundingClientRect();
+      const p = Math.min(1, Math.max(0, 1 - (r.bottom - innerHeight) / (innerHeight * 0.8)));
+      giant.style.transform = `translate3d(0, ${(1 - p) * 60}%, 0)`;
+      giant.style.letterSpacing = `${0.1 + p * 0.12}em`;
+      giant.style.opacity = String(0.25 + p * 0.75);
+    };
+    addEventListener('scroll', upd, { passive: true });
+    upd();
+  }
+</script>
+
 <style>
   .footer {
-    border-top: 1px solid var(--hairline);
-    padding-top: 64px;
-    background: linear-gradient(180deg, transparent, rgba(46, 125, 140, 0.08));
+    position: relative;
+    overflow: hidden;
+    background: #0f2a30;
+    color: #f2efe6;
+    padding-top: clamp(60px, 8vw, 110px);
   }
 
-  .footer-grid {
+  .f-cta {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 30px 60px;
+    align-items: end;
+    padding-bottom: clamp(50px, 7vw, 90px);
+    border-bottom: 1px solid rgba(242, 239, 230, 0.1);
+  }
+
+  .f-cta-title {
+    color: #f2efe6;
+    font-weight: 400;
+    font-size: clamp(2.4rem, 6vw, 5rem);
+    line-height: 1;
+  }
+
+  .f-cta-side {
+    display: grid;
+    gap: 22px;
+    justify-items: start;
+  }
+
+  .f-cta-side p {
+    color: rgba(242, 239, 230, 0.65);
+    max-width: 40ch;
+  }
+
+  .f-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
     gap: 36px;
-    padding-bottom: 48px;
+    padding-block: 56px 20px;
   }
 
   .brand {
@@ -68,69 +154,90 @@ const companyLinks = tr<string[]>(lang, 'footer.links.company');
     font-size: 1rem;
     letter-spacing: 0.32em;
     text-transform: uppercase;
-    color: var(--green-900);
-  }
-
-  .dot {
-    background: var(--brand-grad);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
   }
 
   .tagline {
-    margin-top: 12px;
-    color: var(--ink-500);
+    margin-top: 14px;
+    color: rgba(242, 239, 230, 0.55);
     font-size: 0.92rem;
   }
 
-  .footer-col {
+  .f-col {
     display: grid;
     gap: 10px;
     align-content: start;
   }
 
-  .footer-col h3 {
-    font-size: 0.8rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-300);
+  .f-col h3 {
+    color: #63a6a0;
     font-family: var(--font-body);
-    font-weight: 600;
-    margin-bottom: 4px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
   }
 
-  .footer-col a {
-    color: var(--ink-700);
-    font-size: 0.92rem;
+  .f-col a {
     width: fit-content;
-    transition: color 0.25s;
+    font-size: 0.93rem;
+    color: rgba(242, 239, 230, 0.72);
+    background: linear-gradient(#63a6a0, #63a6a0) 0 100% / 0 1px no-repeat;
+    transition: color 0.25s, background-size 0.35s var(--ease-out);
   }
 
-  .footer-col a:hover {
-    color: var(--green-900);
+  .f-col a:hover {
+    color: #f2efe6;
+    background-size: 100% 1px;
   }
 
-  .footer-bottom {
+  .f-giant {
+    overflow: hidden;
+    text-align: center;
+    line-height: 0.8;
+    padding-top: 20px;
+  }
+
+  .f-giant span {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(4rem, 17vw, 16rem);
+    letter-spacing: 0.1em;
+    padding-left: 0.1em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(99, 166, 160, 0.55);
+    background: linear-gradient(180deg, rgba(99, 166, 160, 0.18), transparent 80%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    will-change: transform;
+  }
+
+  .f-bottom {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding-block: 22px;
-    border-top: 1px solid var(--hairline);
-    font-size: 0.84rem;
-    color: var(--ink-500);
     flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+    padding-block: 22px 30px;
+    font-size: 0.78rem;
+    color: rgba(242, 239, 230, 0.45);
+    border-top: 1px solid rgba(242, 239, 230, 0.08);
   }
 
-  @media (max-width: 900px) {
-    .footer-grid {
+  @media (max-width: 860px) {
+    .f-cta,
+    .f-grid {
       grid-template-columns: 1fr 1fr;
+    }
+    .f-cta-title,
+    .f-brand,
+    .f-cta-side {
+      grid-column: 1 / -1;
     }
   }
 
   @media (max-width: 520px) {
-    .footer-grid {
+    .f-grid {
       grid-template-columns: 1fr;
     }
   }

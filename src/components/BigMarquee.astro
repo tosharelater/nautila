@@ -1,0 +1,89 @@
+---
+/** Two rows of giant type that slide in opposite directions as you scroll. */
+interface Props {
+  top: string[];
+  bottom: string[];
+  tone?: 'light' | 'dark';
+}
+const { top, bottom, tone = 'light' } = Astro.props;
+const rep = (arr: string[]) => [...arr, ...arr, ...arr];
+---
+
+<section class:list={['bigm', tone]} data-bigm aria-hidden="true">
+  <div class="bm-row" data-bm-dir="-1">
+    {rep(top).map((w, i) => <span class:list={{ solid: i % 2 === 1 }}>{w}<i>✦</i></span>)}
+  </div>
+  <div class="bm-row" data-bm-dir="1">
+    {rep(bottom).map((w, i) => <span class:list={{ solid: i % 2 === 0 }}>{w}<i>✦</i></span>)}
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-bigm]').forEach((sec) => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const rows = Array.from(sec.querySelectorAll<HTMLElement>('[data-bm-dir]'));
+    const upd = () => {
+      const r = sec.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > innerHeight) return;
+      const p = (innerHeight - r.top) / (innerHeight + r.height); // 0…1 across the viewport
+      rows.forEach((row) => {
+        const dir = Number(row.dataset.bmDir);
+        row.style.transform = `translate3d(${(dir > 0 ? -40 : -10) + dir * p * 30}%, 0, 0)`;
+      });
+    };
+    addEventListener('scroll', upd, { passive: true });
+    upd();
+  });
+</script>
+
+<style>
+  .bigm {
+    overflow: hidden;
+    padding-block: clamp(40px, 7vw, 90px);
+    display: grid;
+    gap: 0.1em;
+  }
+
+  .bigm.dark {
+    background: #14333b;
+  }
+
+  .bm-row {
+    display: flex;
+    white-space: nowrap;
+    will-change: transform;
+    font-family: var(--font-display);
+    font-size: clamp(3.2rem, 11vw, 10rem);
+    line-height: 1.05;
+    font-weight: 400;
+  }
+
+  .bm-row span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    padding-right: 0.35em;
+    color: transparent;
+    -webkit-text-stroke: 1.2px rgba(20, 51, 59, 0.35);
+  }
+
+  .bm-row span.solid {
+    color: #14333b;
+    -webkit-text-stroke: 0;
+  }
+
+  .bm-row i {
+    font-style: normal;
+    font-size: 0.3em;
+    color: #2e7d8c;
+    -webkit-text-stroke: 0;
+  }
+
+  .dark .bm-row span {
+    -webkit-text-stroke-color: rgba(242, 239, 230, 0.3);
+  }
+
+  .dark .bm-row span.solid {
+    color: #63a6a0;
+  }
+</style>

@@ -1,17 +1,17 @@
 ---
 import { type Lang } from '../i18n/ui';
+import { type PageKey, href } from '../i18n/routes';
 
 interface Props {
   lang: Lang;
+  page?: PageKey;
 }
-const { lang } = Astro.props;
-
-const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const { lang, page = 'home' } = Astro.props;
 ---
 
 <div class="lang-switch" role="group" aria-label="Language / Langue">
-  <a href={base} hreflang="fr" aria-current={lang === 'fr' ? 'true' : undefined} class:list={[{ active: lang === 'fr' }]}>FR</a>
-  <a href={`${base}en/`} hreflang="en" aria-current={lang === 'en' ? 'true' : undefined} class:list={[{ active: lang === 'en' }]}>EN</a>
+  <a href={href('fr', page)} hreflang="fr" aria-current={lang === 'fr' ? 'true' : undefined} class:list={[{ active: lang === 'fr' }]}>FR</a>
+  <a href={href('en', page)} hreflang="en" aria-current={lang === 'en' ? 'true' : undefined} class:list={[{ active: lang === 'en' }]}>EN</a>
 </div>
 
 <style>

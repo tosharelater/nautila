@@ -1,0 +1,164 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import FeatureRows from '../components/FeatureRows.astro';
+import type { Row } from '../data/types';
+import BigMarquee from '../components/BigMarquee.astro';
+import Process from '../components/Process.astro';
+import Statement from '../components/Statement.astro';
+import FAQ from '../components/FAQ.astro';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const c = {
+  fr: {
+    kicker: 'Services',
+    title: ['Tout ce qu’un bien', 'demande.'],
+    lead: 'Une conciergerie complète, pensée comme un seul standard : les mêmes gestes, dans le même ordre, dans chaque logement.',
+    rows: [
+      {
+        kicker: 'Arrivée',
+        title: 'Check-in digital',
+        text: 'Le code d’accès arrive dans l’application, la serrure connectée fait le reste. Le voyageur entre à toute heure, sans attendre personne.',
+        points: ['Serrure connectée installée et suivie', 'Instructions d’arrivée en français et en anglais', 'Accès révocable après chaque séjour'],
+        image: 'phoneDoor',
+        alt: 'Téléphone utilisé pour ouvrir une porte',
+      },
+      {
+        kicker: 'Rotation',
+        title: 'Ménage hôtelier',
+        text: 'Linge hôtelier, check-list identique à chaque rotation. Le logement est prêt comme un hôtel, avec la chaleur d’une maison.',
+        points: ['Linge de lit et de bain hôteliers', 'Check-list commune à tous les biens', 'Produits d’accueil renouvelés'],
+        image: 'bedLinen',
+        alt: 'Lit au linge blanc près d’une fenêtre',
+      },
+      {
+        kicker: 'Revenus',
+        title: 'Pricing dynamique',
+        text: 'Le prix de la nuit suit la saison, la demande et les événements de la côte. Chaque ajustement est lisible dans votre rapport.',
+        points: ['Calendrier ouvert sur les principales plateformes', 'Prix ajustés à la saison et à la demande', 'Revenus détaillés en MAD'],
+        image: 'woodLiving',
+        alt: 'Séjour lumineux aux accents de bois',
+      },
+      {
+        kicker: 'Entretien',
+        title: 'Maintenance',
+        text: 'Les petites réparations sont traitées vite. Vous êtes informé d’abord, avec le montant et la facture — jamais de surprise.',
+        points: ['Intervenants de confiance par zone', 'Montant et facture transmis', 'Suivi dans le rapport mensuel'],
+        image: 'keys',
+        alt: 'Trousseau de clés sur une table en bois',
+      },
+      {
+        kicker: 'Séjour',
+        title: 'Relation voyageurs',
+        text: 'Un message suffit, à toute heure. Nous accueillons, répondons et veillons à ce que chaque séjour se passe dans le calme.',
+        points: ['Messages avant, pendant et après le séjour', 'Guide du logement et du quartier', 'Règlement intérieur clair'],
+        image: 'oceanLiving',
+        alt: 'Séjour avec vue sur l’océan au coucher du soleil',
+      },
+      {
+        kicker: 'Transparence',
+        title: 'Rapport mensuel',
+        text: 'Revenus, occupation, interventions : un document clair au début de chaque mois, lisible en deux minutes.',
+        points: ['Revenus et occupation du mois', 'Calendrier des séjours', 'Journal des interventions'],
+        image: 'foldedCloth',
+        alt: 'Linge plié sur une table en bois ensoleillée',
+      },
+    ] as Row[],
+    quote: 'Le même standard, répliqué sur chaque logement — comme la spirale, à toutes les échelles.',
+    faq: {
+      kicker: 'Questions',
+      title: 'Ce que l’on nous demande souvent',
+      items: [
+        { q: 'Quels types de biens gérez-vous ?', a: 'Des appartements et maisons meublés sur la côte atlantique, de Casablanca à Rabat, par Bouznika et Témara-Harhoura.' },
+        { q: 'Dois-je équiper mon logement ?', a: 'Nous vérifions avec vous ce que le standard Nautila demande lors de la visite : linge hôtelier, serrure connectée, équipements essentiels.' },
+        { q: 'Comment suis-je informé ?', a: 'Au fil de l’eau pour les réservations et interventions, puis chaque mois par un rapport clair.' },
+        { q: 'Puis-je bloquer des dates pour moi ?', a: 'Oui. Vous indiquez vos dates, nous les fermons au calendrier.' },
+      ],
+    },
+  },
+  en: {
+    kicker: 'Services',
+    title: ['Everything a home', 'needs.'],
+    lead: 'A complete concierge service designed as one standard: the same gestures, in the same order, in every home.',
+    rows: [
+      {
+        kicker: 'Arrival',
+        title: 'Digital check-in',
+        text: 'The door code arrives in the app and the connected lock does the rest. Guests get in at any hour without waiting for anyone.',
+        points: ['Connected lock installed and monitored', 'Arrival instructions in French and English', 'Access revoked after each stay'],
+        image: 'phoneDoor',
+        alt: 'A phone used to open a door',
+      },
+      {
+        kicker: 'Turnover',
+        title: 'Hotel-grade cleaning',
+        text: 'Hotel linen and the same checklist at every turnover. The home is ready like a hotel, with the warmth of a house.',
+        points: ['Hotel-grade bed and bath linen', 'One checklist shared by every home', 'Welcome amenities restocked'],
+        image: 'bedLinen',
+        alt: 'White linen bed near a window',
+      },
+      {
+        kicker: 'Revenue',
+        title: 'Dynamic pricing',
+        text: 'The nightly rate follows the season, demand and events along the coast. Every adjustment is visible in your report.',
+        points: ['Calendar open on the main platforms', 'Rates adjusted to season and demand', 'Revenue detailed in MAD'],
+        image: 'woodLiving',
+        alt: 'Bright living room with wooden accents',
+      },
+      {
+        kicker: 'Upkeep',
+        title: 'Maintenance',
+        text: 'Small repairs are handled fast. You hear about it first, with the amount and the invoice — never a surprise.',
+        points: ['Trusted trades in each area', 'Amount and invoice shared', 'Tracked in the monthly report'],
+        image: 'keys',
+        alt: 'Bunch of keys on a wooden table',
+      },
+      {
+        kicker: 'Stay',
+        title: 'Guest relations',
+        text: 'One message away, anytime. We welcome, answer and make sure every stay stays calm.',
+        points: ['Messages before, during and after the stay', 'Home and neighbourhood guide', 'Clear house rules'],
+        image: 'oceanLiving',
+        alt: 'Living room with an ocean view at sunset',
+      },
+      {
+        kicker: 'Transparency',
+        title: 'Monthly report',
+        text: 'Revenue, occupancy, interventions: one clear document at the start of each month, readable in two minutes.',
+        points: ['Monthly revenue and occupancy', 'Stays calendar', 'Interventions log'],
+        image: 'foldedCloth',
+        alt: 'Folded linen on a sunlit wooden table',
+      },
+    ] as Row[],
+    quote: 'The same standard, replicated in every home — like the spiral, at every scale.',
+    faq: {
+      kicker: 'Questions',
+      title: 'What owners often ask',
+      items: [
+        { q: 'What kind of homes do you manage?', a: 'Furnished apartments and houses on the Atlantic coast, from Casablanca to Rabat, via Bouznika and Témara-Harhoura.' },
+        { q: 'Do I need to equip my home?', a: 'At the visit we check with you what the Nautila standard requires: hotel linen, connected lock, essential equipment.' },
+        { q: 'How am I kept informed?', a: 'As things happen for bookings and interventions, then every month with a clear report.' },
+        { q: 'Can I block dates for myself?', a: 'Yes. Tell us your dates and we close them on the calendar.' },
+      ],
+    },
+  },
+}[lang];
+---
+
+<BaseLayout lang={lang} page="services" description={c.lead}>
+  <PageHero lang={lang} page="services" kicker={c.kicker} title={c.title} lead={c.lead} image="bedLinen" />
+  <FeatureRows rows={c.rows} />
+  <BigMarquee
+    tone="dark"
+    top={lang === 'fr' ? ['Check-in', 'Ménage', 'Pricing'] : ['Check-in', 'Cleaning', 'Pricing']}
+    bottom={lang === 'fr' ? ['Maintenance', 'Voyageurs', 'Rapport'] : ['Maintenance', 'Guests', 'Report']}
+  />
+  <Process lang={lang} />
+  <Statement kicker={lang === 'fr' ? 'Le standard' : 'The standard'} quote={c.quote} image="lamps" sign="Nautila" />
+  <FAQ kicker={c.faq.kicker} title={c.faq.title} items={c.faq.items} />
+</BaseLayout>

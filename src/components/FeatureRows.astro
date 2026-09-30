@@ -1,0 +1,131 @@
+---
+import { img, srcset } from '../data/media';
+import type { Row } from '../data/types';
+
+interface Props {
+  rows: Row[];
+  id?: string;
+}
+const { rows, id } = Astro.props;
+---
+
+<section class="section frows" id={id}>
+  <div class="container">
+    {
+      rows.map((r, i) => (
+        <article class:list={['frow', { flip: i % 2 === 1 }]}>
+          <div class="frow-media pframe" data-curtain>
+            <img src={img(r.image, 1200)} srcset={srcset(r.image)} sizes="(max-width: 860px) 100vw, 55vw" alt={r.alt} loading="lazy" decoding="async" data-pimg="10" />
+            <span class="frow-num tnum" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          </div>
+          <div class="frow-copy" data-stagger>
+            <p class="kicker">{r.kicker}</p>
+            <h2 class="frow-title">{r.title}</h2>
+            <p class="frow-text">{r.text}</p>
+            {r.points && (
+              <ul class="frow-points">
+                {r.points.map((pt) => (
+                  <li>
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M5 12l5 5 9-10" />
+                    </svg>
+                    {pt}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .frows .container {
+    display: grid;
+    gap: clamp(80px, 12vw, 160px);
+  }
+
+  .frow {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: clamp(32px, 6vw, 96px);
+    align-items: center;
+  }
+
+  .frow.flip .frow-media {
+    order: 2;
+  }
+
+  .frow-media {
+    aspect-ratio: 5 / 4;
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .frow.flip .frow-media {
+    aspect-ratio: 4 / 5;
+  }
+
+  .frow-num {
+    position: absolute;
+    left: 22px;
+    bottom: 16px;
+    z-index: 2;
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 7vw, 6rem);
+    line-height: 1;
+    color: rgba(242, 239, 230, 0.9);
+    text-shadow: 0 6px 30px rgba(20, 51, 59, 0.5);
+  }
+
+  .frow-title {
+    margin-top: 16px;
+    font-weight: 400;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+  }
+
+  .frow-text {
+    margin-top: 18px;
+    color: var(--ink-500);
+    max-width: 46ch;
+    font-size: 1.04rem;
+  }
+
+  .frow-points {
+    display: grid;
+    gap: 12px;
+    margin-top: 26px;
+  }
+
+  .frow-points li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    color: var(--ink-700);
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(20, 51, 59, 0.08);
+  }
+
+  .frow-points svg {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    stroke: #2e7d8c;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  @media (max-width: 860px) {
+    .frow {
+      grid-template-columns: 1fr;
+    }
+    .frow.flip .frow-media {
+      order: 0;
+      aspect-ratio: 5 / 4;
+    }
+  }
+</style>

@@ -11,20 +11,24 @@ import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import Splash from '../components/Splash.astro';
 import { type Lang, t } from '../i18n/ui';
+import { type PageKey, LABELS } from '../i18n/routes';
 
 interface Props {
   lang: Lang;
+  page?: PageKey;
+  title?: string;
+  description?: string;
 }
-const { lang } = Astro.props;
+const { lang, page = 'home' } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 
-const title = t(lang, 'meta.title');
-const description = t(lang, 'meta.description');
+const title = Astro.props.title ?? (page === 'home' ? t(lang, 'meta.title') : `${LABELS[page][lang]} — Nautila`);
+const description = Astro.props.description ?? t(lang, 'meta.description');
 const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : Astro.url.pathname;
 ---
 
 <!doctype html>
-<html lang={lang}>
+<html lang={lang} data-page={page}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -32,6 +36,7 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : As
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="preconnect" href="https://images.unsplash.com" />
     <meta name="theme-color" content="#14333B" />
     <meta name="generator" content={Astro.generator} />
 
@@ -51,11 +56,12 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : As
   </head>
 
   <body>
-    <Splash lang={lang} />
+    {page === 'home' && <Splash lang={lang} />}
 
     <div class="progress" aria-hidden="true"><span class="bar" data-progress-bar></span></div>
+    <div class="cursor" aria-hidden="true" data-cursor><span></span></div>
 
-    <a class="spiral-top" href="#top" data-nav-link data-spiral-top aria-label={lang === 'en' ? 'Back to top' : 'Retour en haut'}>
+    <a class="spiral-top" href="#" data-spiral-top aria-label={lang === 'en' ? 'Back to top' : 'Retour en haut'}>
       <svg viewBox="-70 -8 176 116" fill="none" aria-hidden="true">
         <path class="st-track" pathLength="1" d="M-14.59 38.2 A14.59 14.59 0 0 0 0 23.61 A23.61 23.61 0 0 0 -23.61 0 A38.2 38.2 0 0 0 -61.8 38.2 A61.8 61.8 0 0 0 0 100 A100 100 0 0 0 100 0"></path>
         <path class="st-fill" pathLength="1" data-spiral-fill d="M-14.59 38.2 A14.59 14.59 0 0 0 0 23.61 A23.61 23.61 0 0 0 -23.61 0 A38.2 38.2 0 0 0 -61.8 38.2 A61.8 61.8 0 0 0 0 100 A100 100 0 0 0 100 0"></path>
@@ -63,13 +69,13 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : As
       <span class="st-pct tnum" data-spiral-pct>0</span>
     </a>
 
-    <Nav lang={lang} />
+    <Nav lang={lang} page={page} />
 
-    <div>
+    <div class="page">
       <main>
         <slot />
       </main>
-      <Footer lang={lang} />
+      <Footer lang={lang} page={page} />
     </div>
 
     <script>

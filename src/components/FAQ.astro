@@ -1,0 +1,156 @@
+---
+interface Props {
+  kicker: string;
+  title: string;
+  items: { q: string; a: string }[];
+  tone?: 'light' | 'sable';
+}
+const { kicker, title, items, tone = 'light' } = Astro.props;
+---
+
+<section class:list={['section faq', { 'bg-sable': tone === 'sable' }]}>
+  <div class="container faq-grid">
+    <div class="faq-head">
+      <p class="kicker" data-fade>{kicker}</p>
+      <h2 class="section-title">{title}</h2>
+    </div>
+    <div class="faq-list" data-stagger>
+      {
+        items.map((it, i) => (
+          <details class="qa" open={i === 0}>
+            <summary>
+              <span class="qa-n tnum">{String(i + 1).padStart(2, '0')}</span>
+              <span class="qa-q">{it.q}</span>
+              <span class="qa-icon" aria-hidden="true" />
+            </summary>
+            <div class="qa-a">
+              <p>{it.a}</p>
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: clamp(32px, 6vw, 90px);
+    align-items: start;
+  }
+
+  .faq-head {
+    position: sticky;
+    top: calc(var(--nav-h) + 40px);
+  }
+
+  .qa {
+    border-top: 1px solid rgba(20, 51, 59, 0.12);
+  }
+
+  .qa:last-child {
+    border-bottom: 1px solid rgba(20, 51, 59, 0.12);
+  }
+
+  summary {
+    display: grid;
+    grid-template-columns: 40px 1fr 28px;
+    gap: 12px;
+    align-items: center;
+    padding: 24px 0;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .qa-n {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #2e7d8c;
+  }
+
+  .qa-q {
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+    color: #14333b;
+    transition: color 0.25s;
+  }
+
+  summary:hover .qa-q {
+    color: #2e7d8c;
+  }
+
+  .qa-icon {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid rgba(20, 51, 59, 0.2);
+    transition: background 0.3s, border-color 0.3s, transform 0.45s var(--ease-out);
+  }
+
+  .qa-icon::before,
+  .qa-icon::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 10px;
+    height: 1.5px;
+    background: #14333b;
+    transform: translate(-50%, -50%);
+    transition: transform 0.45s var(--ease-out), background 0.3s;
+  }
+
+  .qa-icon::after {
+    transform: translate(-50%, -50%) rotate(90deg);
+  }
+
+  .qa[open] .qa-icon {
+    background: #14333b;
+    border-color: #14333b;
+    transform: rotate(180deg);
+  }
+
+  .qa[open] .qa-icon::before,
+  .qa[open] .qa-icon::after {
+    background: #f2efe6;
+  }
+
+  .qa[open] .qa-icon::after {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  .qa-a {
+    display: grid;
+    grid-template-rows: 1fr;
+    padding: 0 40px 24px 52px;
+    color: var(--ink-500);
+    animation: qa-open 0.5s var(--ease-out);
+  }
+
+  @keyframes qa-open {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+
+  @media (max-width: 860px) {
+    .faq-grid {
+      grid-template-columns: 1fr;
+    }
+    .faq-head {
+      position: relative;
+      top: 0;
+    }
+    .qa-a {
+      padding: 0 0 22px 52px;
+    }
+  }
+</style>

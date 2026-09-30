@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Listings from '../components/Listings.astro';
+import BigMarquee from '../components/BigMarquee.astro';
+import CoastMap from '../components/CoastMap.astro';
+import Gallery from '../components/Gallery.astro';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const fr = lang === 'fr';
+---
+
+<BaseLayout
+  lang={lang}
+  page="homes"
+  description={fr ? 'Des logements gérés par Nautila sur la côte atlantique.' : 'Homes managed by Nautila on the Atlantic coast.'}
+>
+  <PageHero
+    lang={lang}
+    page="homes"
+    kicker={fr ? 'Nos biens' : 'Our homes'}
+    title={fr ? ['La côte Atlantique,', 'chez vous.'] : ['The Atlantic coast,', 'at home.']}
+    lead={fr
+      ? 'Appartements et maisons de Casablanca à Rabat : lin, bois clair, laiton, et la lumière de fin de journée.'
+      : 'Apartments and houses from Casablanca to Rabat: linen, light wood, brass, and late-afternoon light.'}
+    image="oceanLiving"
+  />
+  <Listings lang={lang} />
+  <BigMarquee tone="dark" top={['Casablanca', 'Bouznika']} bottom={['Rabat', 'Témara-Harhoura']} />
+  <CoastMap lang={lang} />
+  <Gallery lang={lang} />
+</BaseLayout>

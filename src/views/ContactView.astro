@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Contact from '../components/Contact.astro';
+import CoastMap from '../components/CoastMap.astro';
+import FAQ from '../components/FAQ.astro';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const fr = lang === 'fr';
+---
+
+<BaseLayout lang={lang} page="contact" description={fr ? 'Parlez à Nautila de votre logement.' : 'Tell Nautila about your home.'}>
+  <PageHero
+    lang={lang}
+    page="contact"
+    kicker="Contact"
+    title={fr ? ['Parlons de', 'votre bien.'] : ['Let’s talk about', 'your home.']}
+    lead={fr
+      ? 'Une visite, une estimation claire, puis le même standard que tous nos logements. Nous revenons vers vous rapidement.'
+      : 'A visit, a clear estimate, then the same standard as every home we manage. We get back to you quickly.'}
+    image="keyDoor"
+  />
+  <Contact lang={lang} />
+  <CoastMap lang={lang} />
+  <FAQ
+    kicker={fr ? 'Avant de nous écrire' : 'Before you write'}
+    title={fr ? 'Les questions pratiques' : 'Practical questions'}
+    items={fr
+      ? [
+          { q: 'Que se passe-t-il après ma demande ?', a: 'Nous vous recontactons pour organiser une visite du bien, puis nous vous remettons une estimation claire.' },
+          { q: 'La visite est-elle engageante ?', a: 'Non. Elle sert à vérifier ce que le standard demande et à vous présenter les conditions.' },
+          { q: 'Travaillez-vous hors de ces zones ?', a: 'Pour l’instant, nous restons sur la côte : Casablanca, Bouznika, Rabat et Témara-Harhoura.' },
+        ]
+      : [
+          { q: 'What happens after my request?', a: 'We contact you to arrange a visit of the home, then give you a clear estimate.' },
+          { q: 'Is the visit binding?', a: 'No. It is to check what the standard requires and to present the terms.' },
+          { q: 'Do you work outside these areas?', a: 'For now we stay on the coast: Casablanca, Bouznika, Rabat and Témara-Harhoura.' },
+        ]}
+    tone="sable"
+  />
+</BaseLayout>
