@@ -1,5 +1,4 @@
 ---
-import '@fontsource/jost/latin-300.css';
 import '@fontsource/jost/latin-400.css';
 import '@fontsource/jost/latin-500.css';
 import '@fontsource/ibm-plex-sans/latin-400.css';
@@ -59,7 +58,6 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : As
     {page === 'home' && <Splash lang={lang} />}
 
     <div class="progress" aria-hidden="true"><span class="bar" data-progress-bar></span></div>
-    <div class="cursor" aria-hidden="true" data-cursor><span></span></div>
 
     <a class="spiral-top" href="#" data-spiral-top aria-label={lang === 'en' ? 'Back to top' : 'Retour en haut'}>
       <svg viewBox="-70 -8 176 116" fill="none" aria-hidden="true">

@@ -281,11 +281,6 @@ export function createSplash(
     setEye();
     root.classList.add('is-out');
     window.dispatchEvent(new Event('nautila:splash-done'));
-    try {
-      sessionStorage.setItem('nautila-splash', '1');
-    } catch {
-      /* storage blocked — splash just plays again next time */
-    }
     window.setTimeout(() => {
       root.remove();
       document.documentElement.classList.remove('splash-lock');
@@ -375,17 +370,6 @@ export function createSplash(
     await wait(420);
     finish();
   };
-
-  try {
-    if (sessionStorage.getItem('nautila-splash')) {
-      root.remove();
-      window.dispatchEvent(new Event('nautila:splash-done'));
-      options.onDone?.();
-      return { skip: () => {}, destroy: () => {} };
-    }
-  } catch {
-    /* storage blocked — play the splash */
-  }
 
   document.documentElement.classList.add('splash-lock');
   run();

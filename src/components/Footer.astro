@@ -76,31 +76,11 @@ const year = 2026;
     </div>
   </div>
 
-  <div class="f-giant" aria-hidden="true">
-    <span data-giant>NAUTILA</span>
-  </div>
-
   <div class="container f-bottom">
     <span>© {year} Nautila. {t(lang, 'footer.rights')}</span>
     <span>{lang === 'en' ? 'Built on the golden ratio — φ = 1.618' : 'Construit sur le nombre d’or — φ = 1,618'}</span>
   </div>
 </footer>
-
-<script>
-  const giant = document.querySelector<HTMLElement>('[data-giant]');
-  const footer = document.querySelector<HTMLElement>('[data-footer]');
-  if (giant && footer && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const upd = () => {
-      const r = footer.getBoundingClientRect();
-      const p = Math.min(1, Math.max(0, 1 - (r.bottom - innerHeight) / (innerHeight * 0.8)));
-      giant.style.transform = `translate3d(0, ${(1 - p) * 60}%, 0)`;
-      giant.style.letterSpacing = `${0.1 + p * 0.12}em`;
-      giant.style.opacity = String(0.25 + p * 0.75);
-    };
-    addEventListener('scroll', upd, { passive: true });
-    upd();
-  }
-</script>
 
 <style>
   .footer {
@@ -189,28 +169,6 @@ const year = 2026;
   .f-col a:hover {
     color: #f2efe6;
     background-size: 100% 1px;
-  }
-
-  .f-giant {
-    overflow: hidden;
-    text-align: center;
-    line-height: 0.8;
-    padding-top: 20px;
-  }
-
-  .f-giant span {
-    display: inline-block;
-    font-family: var(--font-display);
-    font-weight: 500;
-    font-size: clamp(4rem, 17vw, 16rem);
-    letter-spacing: 0.1em;
-    padding-left: 0.1em;
-    color: transparent;
-    -webkit-text-stroke: 1px rgba(99, 166, 160, 0.55);
-    background: linear-gradient(180deg, rgba(99, 166, 160, 0.18), transparent 80%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    will-change: transform;
   }
 
   .f-bottom {

@@ -33,7 +33,7 @@ const bgFrag = /* glsl */ `
     return mix(mix(dot(hash(i+vec2(0,0)),f-vec2(0,0)), dot(hash(i+vec2(1,0)),f-vec2(1,0)),u.x),
                mix(dot(hash(i+vec2(0,1)),f-vec2(0,1)), dot(hash(i+vec2(1,1)),f-vec2(1,1)),u.x),u.y);
   }
-  float fbm(vec2 p){ float v=0.0, a=0.5; for(int i=0;i<5;i++){ v+=a*noise(p); p*=2.02; a*=0.5; } return v; }
+  float fbm(vec2 p){ float v=0.0, a=0.5; for(int i=0;i<4;i++){ v+=a*noise(p); p*=2.02; a*=0.5; } return v; }
 
   void main(){
     vec2 uv = vUv;
@@ -146,7 +146,7 @@ export interface Hero3DOptions {
 
 export function createHero3D(canvas: HTMLCanvasElement, host: HTMLElement, opts: Hero3DOptions = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
-  const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   renderer.setPixelRatio(dpr);
 
   const scene = new THREE.Scene();
@@ -195,7 +195,7 @@ export function createHero3D(canvas: HTMLCanvasElement, host: HTMLElement, opts:
     blending: THREE.AdditiveBlending,
     side: THREE.DoubleSide,
   });
-  const tube = new THREE.Mesh(taperedTube(curve, 700, 24, 0.11), tubeMat);
+  const tube = new THREE.Mesh(taperedTube(curve, 480, 18, 0.11), tubeMat);
   group.add(tube);
 
   // Soft halo shell around the tube (cheap bloom substitute)
@@ -214,82 +214,7 @@ export function createHero3D(canvas: HTMLCanvasElement, host: HTMLElement, opts:
     depthWrite: false,
     blending: THREE.AdditiveBlending,
   });
-  group.add(new THREE.Mesh(taperedTube(curve, 360, 16, 0.42), glowMat));
-
-  // Golden rectangle construction (faint)
-  const lineMat = new THREE.LineBasicMaterial({ color: C.ecume, transparent: true, opacity: 0 });
-  const squares = new THREE.Group();
-  {
-    // whirling-squares polygon: one vertex per quarter turn, plus radii to the pole
-    const poly: THREE.Vector3[] = [];
-    for (let k = 0; k < 11; k++) {
-      const th = 0.5 * Math.PI - k * (Math.PI / 2);
-      const r = Math.exp(B * th);
-      const p = new THREE.Vector3(r * Math.cos(th), r * Math.sin(th), 0);
-      poly.push(p);
-      if (k < 6) squares.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), p]), lineMat));
-    }
-    squares.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(poly), lineMat));
-  }
-  group.add(squares);
-
-  // Orbiting pearl
-  const pearl = new THREE.Mesh(
-    new THREE.SphereGeometry(0.06, 24, 24),
-    new THREE.MeshBasicMaterial({ color: C.sable })
-  );
-  const halo = new THREE.Mesh(
-    new THREE.SphereGeometry(0.13, 24, 24),
-    new THREE.MeshBasicMaterial({ color: C.ecume, transparent: true, opacity: 0.18, blending: THREE.AdditiveBlending, depthWrite: false })
-  );
-  pearl.add(halo);
-  group.add(pearl);
-
-  // --- Particles ---------------------------------------------------------
-  const P = window.innerWidth < 700 ? 500 : 1300;
-  const pGeo = new THREE.BufferGeometry();
-  const pPos = new Float32Array(P * 3);
-  const pSeed = new Float32Array(P);
-  for (let i = 0; i < P; i++) {
-    // half on the spiral, half ambient dust
-    if (i % 2 === 0) {
-      const u = Math.random();
-      const p = curve.getPointAt(u);
-      const spread = 0.05 + u * 0.35;
-      pPos[i * 3] = p.x + (Math.random() - 0.5) * spread;
-      pPos[i * 3 + 1] = p.y + (Math.random() - 0.5) * spread;
-      pPos[i * 3 + 2] = p.z + (Math.random() - 0.5) * spread;
-    } else {
-      pPos[i * 3] = (Math.random() - 0.5) * 16;
-      pPos[i * 3 + 1] = (Math.random() - 0.5) * 9;
-      pPos[i * 3 + 2] = (Math.random() - 0.5) * 6 - 1;
-    }
-    pSeed[i] = Math.random();
-  }
-  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-  pGeo.setAttribute('aSeed', new THREE.BufferAttribute(pSeed, 1));
-  const pMat = new THREE.ShaderMaterial({
-    uniforms: { uTime: { value: 0 }, uColor: { value: C.ecume }, uPx: { value: dpr } },
-    vertexShader: /* glsl */ `
-      uniform float uTime; uniform float uPx; attribute float aSeed; varying float vA;
-      void main(){
-        vec3 p = position;
-        p.y += sin(uTime*0.4 + aSeed*20.0) * 0.06;
-        p.x += cos(uTime*0.3 + aSeed*14.0) * 0.05;
-        vec4 mv = modelViewMatrix * vec4(p,1.0);
-        gl_PointSize = (1.2 + aSeed*2.6) * uPx * (6.0 / -mv.z);
-        vA = 0.25 + 0.75 * (0.5 + 0.5*sin(uTime*0.8 + aSeed*40.0));
-        gl_Position = projectionMatrix * mv;
-      }`,
-    fragmentShader: /* glsl */ `
-      uniform vec3 uColor; varying float vA;
-      void main(){ float d = length(gl_PointCoord-0.5); if(d>0.5) discard; gl_FragColor = vec4(uColor, vA * smoothstep(0.5,0.0,d) * 0.7); }`,
-    transparent: true,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
-  });
-  const points = new THREE.Points(pGeo, pMat);
-  group.add(points);
+  group.add(new THREE.Mesh(taperedTube(curve, 240, 12, 0.42), glowMat));
 
   // --- Layout ------------------------------------------------------------
   let W = 1;
@@ -358,8 +283,6 @@ export function createHero3D(canvas: HTMLCanvasElement, host: HTMLElement, opts:
     bgMat.uniforms.uMouse.value.set(mouse.sx, mouse.sy);
     tubeMat.uniforms.uTime.value = t;
     tubeMat.uniforms.uDraw.value = e * 1.001;
-    pMat.uniforms.uTime.value = t;
-    lineMat.opacity = 0.12 * e * (1 - scroll);
 
     group.position.set(vx + mouse.sx * 0.25, vy + mouse.sy * 0.15 + scroll * 1.2, 0);
     const s = vs * (0.85 + 0.15 * e) * (1 + scroll * 0.6);
@@ -370,10 +293,6 @@ export function createHero3D(canvas: HTMLCanvasElement, host: HTMLElement, opts:
       Math.PI + 0.15 + Math.sin(t * 0.12) * 0.08 + scroll * 1.4 - (1 - e) * 1.2
     );
 
-    const pu = (t * 0.06) % 1;
-    const pp = curve.getPointAt(1 - pu);
-    pearl.position.copy(pp);
-    pearl.scale.setScalar(0.5 + (1 - pu) * 0.8);
 
     renderer.render(scene, camera);
   };

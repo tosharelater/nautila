@@ -283,42 +283,18 @@ qa<HTMLAnchorElement>('a[href^="#"]').forEach((link) => {
 });
 
 /* ------------------------------------------------------------------ */
-/* Custom cursor + magnetic buttons (desktop pointers only)            */
+/* Magnetic buttons (desktop pointers only)                            */
 /* ------------------------------------------------------------------ */
-const cursor = q<HTMLElement>('[data-cursor]');
-const cur = { x: -100, y: -100, sx: -100, sy: -100 };
-if (cursor && finePointer && !prefersReduced) {
-  document.documentElement.classList.add('has-cursor');
-  window.addEventListener('pointermove', (e) => {
-    cur.x = e.clientX;
-    cur.y = e.clientY;
-  });
-  document.addEventListener('pointerover', (e) => {
-    const el = (e.target as HTMLElement).closest('a, button, [role="button"], input, select, textarea, label, .gal-track');
-    cursor.classList.toggle('is-link', !!el && !el.matches('input, textarea, select, .gal-track'));
-    cursor.classList.toggle('is-drag', !!el && el.matches('.gal-track'));
-  });
-  document.addEventListener('pointerdown', () => cursor.classList.add('is-down'));
-  document.addEventListener('pointerup', () => cursor.classList.remove('is-down'));
-  document.addEventListener('mouseleave', () => cursor.classList.add('is-out'));
-  document.addEventListener('mouseenter', () => cursor.classList.remove('is-out'));
-
+if (finePointer && !prefersReduced) {
   qa<HTMLElement>('[data-magnetic], .btn').forEach((el) => {
     el.addEventListener('pointermove', (e) => {
       const r = el.getBoundingClientRect();
-      const x = (e.clientX - r.left - r.width / 2) * 0.28;
-      const y = (e.clientY - r.top - r.height / 2) * 0.35;
+      const x = (e.clientX - r.left - r.width / 2) * 0.22;
+      const y = (e.clientY - r.top - r.height / 2) * 0.3;
       el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
     });
     el.addEventListener('pointerleave', () => (el.style.transform = ''));
   });
-}
-
-function updateCursor() {
-  if (!cursor || !finePointer) return;
-  cur.sx = lerp(cur.sx, cur.x, 0.2);
-  cur.sy = lerp(cur.sy, cur.y, 0.2);
-  cursor.style.transform = `translate3d(${cur.sx}px, ${cur.sy}px, 0)`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -403,22 +379,31 @@ function updateScrub() {
 /* ------------------------------------------------------------------ */
 /* Main rAF loop — smooth pointer + scroll-driven scenes               */
 /* ------------------------------------------------------------------ */
+let prevY = -1;
+let prevVh = -1;
+let settle = 0;
 function frame(time: number) {
   lenis?.raf(time);
   pointer.sx = lerp(pointer.sx, pointer.x, 0.08);
   pointer.sy = lerp(pointer.sy, pointer.y, 0.08);
 
-  document.documentElement.style.setProperty('--mx', String(pointer.sx));
-  document.documentElement.style.setProperty('--my', String(pointer.sy));
-
-  onScrollChrome();
-  (window as any).__nautilaManifesto?.();
-  updateHorizontal();
-  updateParallax();
-  updateSpiral();
-  updateScrub();
-  updateImgParallax();
-  updateCursor();
+  // Only lay out scroll-driven scenes when something actually moved;
+  // a few extra frames after stopping let eased values settle.
+  const y = window.scrollY;
+  const moved = y !== prevY || window.innerHeight !== prevVh || Math.abs(pointer.x - pointer.sx) > 0.001;
+  if (moved) settle = 12;
+  if (settle > 0) {
+    settle--;
+    prevY = y;
+    prevVh = window.innerHeight;
+    onScrollChrome();
+    (window as any).__nautilaManifesto?.();
+    updateHorizontal();
+    updateParallax();
+    updateSpiral();
+    updateScrub();
+    updateImgParallax();
+  }
 
   requestAnimationFrame(frame);
 }

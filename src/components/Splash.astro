@@ -21,9 +21,16 @@ const words =
   data-finale="Nautila"
 >
   <script is:inline>
-    try {
-      if (sessionStorage.getItem('nautila-splash')) document.documentElement.classList.add('splash-seen');
-    } catch (e) {}
+    document.documentElement.classList.add('splash-lock');
+    // safety net: never keep the page locked if the intro script fails
+    setTimeout(function () {
+      var s = document.querySelector('[data-splash]');
+      if (s && document.documentElement.classList.contains('splash-lock')) {
+        s.remove();
+        document.documentElement.classList.remove('splash-lock');
+        window.dispatchEvent(new Event('nautila:splash-done'));
+      }
+    }, 12000);
   </script>
   <div class="splash-glow" aria-hidden="true"></div>
   <canvas class="splash-canvas" data-splash-canvas aria-hidden="true"></canvas>
@@ -38,6 +45,10 @@ const words =
 </div>
 
 <style is:global>
+  html:not(.js) .splash {
+    display: none;
+  }
+
   html.splash-lock,
   html.splash-lock body {
     overflow: hidden;
@@ -55,10 +66,6 @@ const words =
     --cy: 45vh;
     clip-path: circle(150% at var(--cx) var(--cy));
     transition: clip-path 0.95s cubic-bezier(0.7, 0, 0.2, 1), visibility 0.95s;
-  }
-
-  html.splash-seen .splash {
-    display: none;
   }
 
   .splash.is-out {
